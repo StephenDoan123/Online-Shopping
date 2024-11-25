@@ -5,14 +5,15 @@ import Transaction.Shop;
 import java.util.ArrayList;
 
 public class Seller extends User{
-    ArrayList<Shop> shops;
+    ArrayList<Integer> shops;
 
     public Seller(){
-        super(" ", 000000, 0);
+        super(" ", 000000, " ", 0);
     }
 
-    public Seller(String name, int ID, double balance){
-        super(name, ID, balance);
+    public Seller(String name, int ID, String password, double balance){
+        super(name, ID, password, balance);
+        shops = new ArrayList<>();
     }
 
 }
