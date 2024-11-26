@@ -16,6 +16,13 @@ import Transaction.Product;
 public class Utils {
 
     //=================================================== Function ========================================================================
+    public String enumToString(Shop shop){
+        return shop.getCategory().name();
+    }
+    public Category stringToCategory(String name){
+        Category category = Category.valueOf(Category.class, name);
+        return category;
+    }
     public static void showCategories(){
 
     }
@@ -42,9 +49,19 @@ public class Utils {
             writer.newLine();
             writer.write(balance);
             writer.newLine();
+
             writer.write("Cart:");
             writer.newLine();
-
+            for(Integer id: cart.keySet()){
+                writer.write("ID: "+Integer.toString(id)+", amount: "+Integer.toString(cart.get(id)));
+                writer.newLine();
+            }
+            writer.write("Purchased:");
+            writer.newLine();
+            for(Integer id: purchased.keySet()){
+                writer.write("ID: "+Integer.toString(id)+", amount: "+Integer.toString(purchased.get(id)));
+                writer.newLine();
+            }
 
             writer.close();
             System.out.println("Save successfully!");
@@ -56,6 +73,7 @@ public class Utils {
 
     public static Customer readCustomerFile(String ID){
         String filePath = "Data/Customer/"+ID+".txt";
+
         Customer customer = new Customer();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
