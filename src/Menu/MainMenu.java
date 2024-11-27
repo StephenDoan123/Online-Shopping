@@ -13,6 +13,6 @@ public class MainMenu {
         System.out.println("(2) Seller");
         System.out.print("Choose your account: ");
         choice = scan.nextLine();
-
+        
     }
 }

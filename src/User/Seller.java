@@ -8,10 +8,11 @@ public class Seller extends User{
     ArrayList<Integer> shops;
 
     public Seller(){
-        super(" ", 000000, " ", 0);
+        super(" ", " ", " ", 0);
+        shops = new ArrayList<>();
     }
 
-    public Seller(String name, int ID, String password, double balance){
+    public Seller(String name, String ID, String password, double balance){
         super(name, ID, password, balance);
         shops = new ArrayList<>();
     }
