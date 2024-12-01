@@ -15,6 +15,11 @@ public class Shop implements ManageProduct {
     private ArrayList<String> bills;
 
 
+    public Shop(String name, String ID){
+        this.name = name;
+        this.ID = ID;
+        goods = new HashMap<>();
+    }
     public Shop(String name, String ID, Category category){
         this.name = name;
         this.ID = ID;
@@ -56,17 +61,16 @@ public class Shop implements ManageProduct {
     }
 
 
-    public boolean isProductAvailable(String id){
-        int amount = this.goods.get(id).intValue();
-        if(amount > 0) return true;
-        return false;
+    public int amountProduct(String id){
+        return goods.get(id).intValue();
     }
 
 
+    //====================================== Manage Product =============================================
     @Override
     public void addProduct(Map<String, Integer> list, String id, int amount){
         Integer a = Integer.valueOf(amount);
-        list.put(id, a);
+        list.put(id, list.getOrDefault(id, 0)+amount);
         Utils.writeShopFile(this);
     }
 
@@ -80,14 +84,8 @@ public class Shop implements ManageProduct {
         Utils.writeShopFile(this);
     }
     public void reduceProduct(Map<String, Integer> list, String id, int amount){
-        int left = this.goods.get(id).intValue() - amount;
+        int left = list.get(id).intValue() - amount;
         Integer value = Integer.valueOf(left);
-        this.goods.put(id, value);
-        Utils.writeShopFile(this);
-    }
-    public void increaseProduct(Map<String, Integer> list, String id, int amount){
-        int add = list.get(id).intValue() + amount;
-        Integer value = Integer.valueOf(add);
         list.put(id, value);
         Utils.writeShopFile(this);
     }
@@ -95,7 +93,6 @@ public class Shop implements ManageProduct {
     public void addToGoods(String id, int amount){
         this.addProduct(this.goods, id, amount);
     }
-
 
 
 }

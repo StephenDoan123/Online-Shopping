@@ -8,14 +8,21 @@ import Transaction.Shop;
 import User.Customer;
 import User.Seller;
 import Transaction.Product;
+import com.google.gson.Gson;
 
 public class Utils {
 
     //=================================================== Function ========================================================================
-    public static String enumToString(Shop shop){
-        return shop.getCategory().name();
+    public static void clearScreen(){
+        for (int i = 0; i < 30; i++) {
+            System.out.println();
+        }
     }
-    public static Category stringToCategory(String name){
+
+    public static String enumToString(Category category){
+        return category.name();
+    }
+    public static Category stringToEnum(String name){
         Category category = Category.valueOf(Category.class, name);
         return category;
     }
@@ -47,11 +54,65 @@ public class Utils {
         return true;
     }
 
-    public static void showCategories(){
+    public static String[] allFiles(String target){
+        String folderPath = "C://Users//Os//IdeaProjects//OnlineShopping//Data//"+target;
 
+        File folder = new File(folderPath);
+        String[] fileNames = new String[0];
+        if(folder.isDirectory()){
+            fileNames = folder.list();
+        }
+        return fileNames;
     }
 
+    public static ArrayList<Shop> showCategory(String targetCategory){
+        String[] files = allFiles("Shop");
+        ArrayList<Shop> foundShops = new ArrayList<>();
+        if(files.length == 0){
+            return foundShops;
+        }
+        for(String file:files){
+            Shop shop = null;
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String shopID = reader.readLine();
+                String shopName = reader.readLine();
+                String category = reader.readLine();
 
+                if (category != null && category.equalsIgnoreCase(targetCategory)) {
+                    shop = Utils.readShopFile(shopID);
+                    foundShops.add(shop);
+                }
+            } catch (IOException e) {
+                System.out.println("An error occurs when reading  " + file);
+                e.printStackTrace();
+            }
+        }
+        return foundShops;
+    }
+
+    public static ArrayList<Product> findProduct(String targetProduct){
+        String[] files = allFiles("Product");
+        ArrayList<Product> foundProducts = new ArrayList<>();
+        if(files.length == 0){
+            return foundProducts;
+        }
+        for(String file: files){
+            Product product = null;
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String productID = reader.readLine();
+                String productName = reader.readLine();
+
+                if (productName != null && productName.equalsIgnoreCase(targetProduct)) {
+                    product = Utils.readProductFile(productID);
+                    foundProducts.add(product);
+                }
+            } catch (IOException e) {
+                System.out.println("An error occurs when reading  " + file);
+                e.printStackTrace();
+            }
+        }
+        return foundProducts;
+    }
     //==================================================  File =======================================================================
     //================================================== Customer ===================================================================
     public static void writeCustomerFile (Customer customer){
@@ -111,7 +172,7 @@ public class Utils {
                     Map<String, Integer> Purchased = new HashMap<>();
 
                     if(line.equals("Cart:")){
-                        while(!(line = reader.readLine()).equals("Purchased:")){
+                        while((line = reader.readLine()) != null && !line.equals("Purchased:")){
                             String[] parts = line.split(", ");
                             String productID = parts[0].split(": ")[1];
                             int amount = Integer.parseInt(parts[1].split(": ")[1]);
@@ -149,7 +210,7 @@ public class Utils {
         String ID = seller.getID();
         String password = seller.getPassword();
         String balance = Double.toString(seller.getBalance());
-
+        ArrayList<String> shops = seller.getShops();
         String filePath = "Data/Seller/"+ID+".txt";
         try{
             BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
@@ -161,6 +222,12 @@ public class Utils {
             writer.newLine();
             writer.write(balance);
             writer.close();
+            writer.write("Shops:");
+            writer.newLine();
+            for(String id: shops){
+                writer.write("ID: "+id);
+                writer.newLine();
+            }
             System.out.println("Save successfully!");
         } catch(IOException e){
             System.out.println("An error occurred!");
@@ -169,7 +236,7 @@ public class Utils {
     }
     public static Seller readSellerFile(String ID){
         String filePath = "Data/Seller/"+ID+".txt";
-        Seller seller = new Seller();
+        Seller seller = new Seller(" ", " ", " ", 0);
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while((line = reader.readLine()) != null){
@@ -183,8 +250,16 @@ public class Utils {
                     seller.setID(id);
                     seller.setBalance(balance);
 
-
+                    ArrayList<String> shops = new ArrayList<>();
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("ID: ")) {
+                            String billID = line.substring(4);
+                            shops.add(billID);
+                        }
+                    }
+                    seller.setShops(shops);
                 }
+
             }
         } catch(IOException e){
             System.out.println("An error occurred while reading the file.");
@@ -200,7 +275,7 @@ public class Utils {
     public static void writeShopFile(Shop shop){
         String name = shop.getName();
         String ID = shop.getID();
-        String categoryName = shop.getCategory().name();
+        String categoryName = Utils.enumToString(shop.getCategory());
         Map<String, Integer> goods = shop.getGoods();
         ArrayList<String> bills = shop.getBills();
 
@@ -215,7 +290,16 @@ public class Utils {
             writer.newLine();
             writer.write("Goods:");
             writer.newLine();
-
+            for(String id: goods.keySet()){
+                writer.write("ID: "+id+", amount: "+Integer.toString(goods.get(id)));
+                writer.newLine();
+            }
+            writer.write("Bills:");
+            writer.newLine();
+            for(String id: bills){
+                writer.write("ID: "+id);
+                writer.newLine();
+            }
 
             writer.close();
             System.out.println("Save successfully!");
@@ -225,14 +309,52 @@ public class Utils {
         }
     }
     public static Shop readShopFile(String ID){
+        String filePath = "Data/Shop/"+ID+".txt";
+        Shop shop = new Shop(" ", " ");
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String id = reader.readLine().trim();
+            String name = reader.readLine().trim();
+            String categoryName = reader.readLine().trim();
+            Category category = Utils.stringToEnum(categoryName);
+            shop.setID(id);
+            shop.setName(name);
+            shop.setCategory(category);
 
+            Map<String, Integer> goods = new HashMap<>();
+            String line = reader.readLine();
+            while((line = reader.readLine()) != null && !line.equals("Bills: ")){
+                if(line.startsWith("ID: ")){
+                    String[] parts = line.split(", ");
+                    String productID = parts[0].substring(4);
+                    int amount = Integer.parseInt(parts[1].substring(8));
+                    goods.put(productID, amount);
+                }
+            }
+            ArrayList<String> bills = new ArrayList<>();
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("ID: ")) {
+                    String billID = line.substring(4);
+                    bills.add(billID);
+                }
+            }
+            reader.close();
+            shop.setGoods(goods);
+            shop.setBills(bills);
+
+        } catch(IOException e){
+            System.out.println("An error occurred while reading the file!");
+            e.printStackTrace();
+        }
+
+        return shop;
     }
 
     //================================================== Product ====================================================================
     public static void writeProductFile(Product product){
         String name = product.getName();
         String ID = product.getID();
-        String price = Float.toString(product.getPrice());
+        String price = Double.toString(product.getPrice());
+        String shopID = product.getShopID();
 
         String filePath = "Data/Product/"+ID+".txt";
         try{
@@ -242,6 +364,8 @@ public class Utils {
             writer.write(name);
             writer.newLine();
             writer.write(price);
+            writer.newLine();
+            writer.write(shopID);
             writer.close();
             System.out.println("Save successfully!");
         } catch(IOException e){

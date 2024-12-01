@@ -14,7 +14,7 @@ public class Customer extends User implements ManageProduct{
     Map<String, Integer> Cart;
     Map<String, Integer> Purchased;
 
-    public Customer(String name, String password, String ID){
+    public Customer(String name, String ID, String password){
         super(name, ID, password, 0);
         Cart = new HashMap<>();
         Purchased = new HashMap<>();
@@ -42,12 +42,10 @@ public class Customer extends User implements ManageProduct{
 
     @Override
     public void addProduct(Map<String, Integer> list, String id, int amount){
-        Integer a = Integer.valueOf(amount);
-        list.put(id, a);
+        list.put(id, list.getOrDefault(id, 0)+amount);
         Utils.writeCustomerFile(this);
     }
     public void removeProduct(Map<String, Integer> list, String id, int amount){
-        Integer a = Integer.valueOf(amount);
         list.remove(id);
         Utils.writeCustomerFile(this);
     }
@@ -57,27 +55,20 @@ public class Customer extends User implements ManageProduct{
     }
     public void reduceProduct(Map<String, Integer> list, String id, int amount){
         int left = list.get(id).intValue() - amount;
-        Integer value = Integer.valueOf(left);
-        list.put(id, value);
-        Utils.writeCustomerFile(this);
-    }
-    public void increaseProduct(Map<String, Integer> list, String id, int amount){
-        int add = list.get(id).intValue() + amount;
-        Integer value = Integer.valueOf(add);
-        list.put(id, value);
+        list.put(id, left);
         Utils.writeCustomerFile(this);
     }
 
     public void addToCart(String id, int amount){
-        this.addProduct(this.Cart, id, amount);
+        this.addProduct(Cart, id, amount);
     }
     public void buyProduct(String id, int amount){
-        this.addProduct(this.Purchased, id, amount);
-        this.removeProduct(this.Cart, id, amount);
+        this.addProduct(Purchased, id, amount);
+        this.removeProduct(Cart, id, amount);
     }
     public void buyPartial(String id, int amount){
         this.reduceProduct(Cart, id, amount);
-        this.increaseProduct(Purchased, id, amount);
+        this.addProduct(Purchased, id, amount);
     }
 
     @Override
@@ -85,7 +76,7 @@ public class Customer extends User implements ManageProduct{
         super.addMoney(amount);
         Utils.writeCustomerFile(this);
     }
-    public void substractMoney(double amount){
+    public void subtractMoney(double amount){
         super.subtractMoney(amount);
         Utils.writeCustomerFile(this);
     }

@@ -11,6 +11,4 @@ public interface ManageProduct {
     public void clearProduct(Map<String, Integer> list);
 
     public void reduceProduct(Map<String, Integer> list, String id, int amount);
-
-    public void increaseProduct(Map<String, Integer> list, String id, int amount);
 }
