@@ -7,10 +7,10 @@ import java.util.*;
 public class Bill {
     String ID;
     String name;
-    float price;
+    double price;
     Map<String, Integer> purchasedBy;
 
-    public Bill(String name, String ID, float price){
+    public Bill(String name, String ID, double price){
         this.name = name;
         this.ID = ID;
         this.price = price;
@@ -23,7 +23,7 @@ public class Bill {
     public String getID(){
         return this.ID;
     }
-    public float getPrice(){
+    public double getPrice(){
         return this.price;
     }
     public Map<String, Integer> getPurchasedBy(){return this.purchasedBy;}
@@ -34,14 +34,18 @@ public class Bill {
     public void setID(String ID){
         this.ID = ID;
     }
-    public void setPrice(float price){
+    public void setPrice(double price){
         this.price = price;
     }
     public void setPurchasedBy(Map<String, Integer> purchasedBy){this.purchasedBy = purchasedBy;}
 
 
-    public void updateBill(String customerID, int amount){
-        this.purchasedBy.put(customerID, amount);
+    public void updateCustomer(String customerID, int amount){
+        purchasedBy.put(customerID, purchasedBy.getOrDefault(customerID, 0)+amount);
         Utils.writeBillFile(this);
+    }
+    public int amountOfPurchased(String customerID){
+        int amount =  purchasedBy.get(customerID);
+        return amount;
     }
 }

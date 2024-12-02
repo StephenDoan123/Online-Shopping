@@ -5,6 +5,7 @@ import User.Customer;
 import User.Seller;
 import Transaction.Shop;
 import Transaction.Product;
+import Transaction.Bill;
 
 
 import java.util.*;
@@ -192,55 +193,59 @@ public class CustomerMenu {
 
     public void displayProductCategory(String category){
         Utils.clearScreen();
-        //==================== Duyệt qua các file shop --> đọc file product
-        ArrayList<Shop> shops = Utils.showCategory(category);
+        String choice;
+        ArrayList<Shop> shops = Utils.findCategory(category);
         Map<Product, Integer> products = new HashMap<>();
-        for(int i = 0; i <shops.size(); i++){
-            for(Map.Entry<String, Integer> entry: shops.get(i).getGoods().entrySet()){
+
+        //==================== Duyệt qua các file shop --> đọc file product
+        for (int i = 0; i < shops.size(); i++) {
+            for (Map.Entry<String, Integer> entry : shops.get(i).getGoods().entrySet()) {
                 Product product = Utils.readProductFile(entry.getKey());
                 Integer amount = entry.getValue();
                 products.put(product, amount);
             }
         }
         //=================== Display product
-        String choice;
-        while(true){
-            System.out.println("-------- "+category+" --------");
-            int index = 1;
-            for(Map.Entry<Product, Integer> entry: products.entrySet()){
-                Product product = entry.getKey();
-                int amount = entry.getValue();
-                System.out.println(index+". "+product+" - Available: "+amount);
-                index++;
-            }
-            System.out.println("0. Exit");
-            System.out.print("Selection: ");
-            choice = scan.next();
-            int selection = Integer.parseInt(choice);
-            if(selection == 0){
-                break;
-            }
-            else if(selection > 0 && selection <= products.size()){
-                Product selectedProduct = (Product) products.keySet().toArray()[selection-1];
-                int availableQuantity = products.get(selectedProduct);
-
-                System.out.print("Amount: ");
-                int quantity = scan.nextInt();
-
-                if(quantity > 0 && quantity <= availableQuantity){
-                    activeCustomer.addToCart(selectedProduct.getID(), quantity);
-                    Shop shop = Utils.readShopFile(selectedProduct.getShopID());
-                    shop.reduceProduct(shop.getGoods(), selectedProduct.getID(), quantity);
-                    System.out.println("Added "+quantity+" "+selectedProduct.getName()+" to the cart!");
+        if(!products.isEmpty()) {
+            while (true) {
+                System.out.println("-------- " + category + " --------");
+                int index = 1;
+                for (Map.Entry<Product, Integer> entry : products.entrySet()) {
+                    Product product = entry.getKey();
+                    int amount = entry.getValue();
+                    System.out.println("(" + index + ") " + product + " - Available: " + amount);
+                    index++;
                 }
-                else{
-                    System.out.println("Invalid amount!");
+                System.out.println("0. Exit");
+                System.out.print("Selection: ");
+                choice = scan.next();
+                int selection = Integer.parseInt(choice);
+                if (selection == 0) {
+                    break;
+                } else if (selection > 0 && selection <= products.size()) {
+                    Product selectedProduct = (Product) products.keySet().toArray()[selection - 1];
+                    int availableQuantity = products.get(selectedProduct);
+
+                    System.out.print("Amount: ");
+                    int quantity = scan.nextInt();
+
+                    if (quantity > 0 && quantity <= availableQuantity) {
+                        activeCustomer.addToCart(selectedProduct.getID(), quantity);
+                        Shop shop = Utils.readShopFile(selectedProduct.getShopID());
+                        shop.reduceProduct(shop.getGoods(), selectedProduct.getID(), quantity);
+                        System.out.println("Added " + quantity + " " + selectedProduct.getName() + " to the cart!");
+                    } else {
+                        System.out.println("Invalid amount!");
+                    }
+                } else {
+                    System.out.println("Invalid choice!");
                 }
-            }
-            else{
-                System.out.println("Invalid choice!");
             }
         }
+        else{
+            System.out.println("No product found!");
+        }
+        choice = scan.next();
         displayCategory();
     }
 
@@ -249,16 +254,205 @@ public class CustomerMenu {
         String choice;
         while(true){
             System.out.println("---------- Search ----------");
-            System.out.println("Enter product: ");
-
+            System.out.print("Enter product: ");
+            choice = scan.next();
+            ArrayList<Product> foundProducts = Utils.findProduct(choice);
+            if(foundProducts.isEmpty()){
+                System.out.println("No "+choice+" founded!");
+            }
+            else{
+                System.out.println("---------- "+choice+" ----------");
+                for(int i = 0; i < foundProducts.size(); i++){
+                    Shop shop = Utils.readShopFile(foundProducts.get(i).getShopID());
+                    int order = i+1;
+                    int amount = shop.amountProduct(foundProducts.get(i).getID());
+                    System.out.println("("+order+") "+"ID: "+foundProducts.get(i).getID() +" "+ foundProducts.get(i)+" - Available: "+amount);
+                }
+                System.out.println("(0) Exit");
+                System.out.print("Selection: ");
+                choice = scan.next();
+                int selection = Integer.parseInt(choice);
+                if(selection == 0){
+                    break;
+                }
+                else if(selection>0&& selection<=foundProducts.size()){
+                    Product selectedProduct = foundProducts.get(selection-1);
+                    Shop selectedShop = Utils.readShopFile(selectedProduct.getShopID());
+                    System.out.print("Amount: ");
+                    int quantity = scan.nextInt();
+                    if(quantity>0 && quantity <= selectedShop.amountProduct(selectedProduct.getID())){
+                        activeCustomer.addToCart(selectedProduct.getID(), quantity);
+                        selectedShop.reduceProduct(selectedShop.getGoods(), selectedProduct.getID(), quantity);
+                        System.out.println("Added "+quantity+" "+selectedProduct.getName()+" to the cart!");
+                    }
+                    else System.out.println("Invalid amount!");
+                }
+                else{
+                    System.out.println("Invalid choice!");
+                }
+            }
         }
+        choice = scan.next();
+        displayMallMenu();
     }
 
     public void displayCartMenu(){
+        Utils.clearScreen();
+        String choice;
+        while(true){
+            Map<String, Integer> cart = activeCustomer.getCart();
+            int index = 1;
+            System.out.println("---------- Cart ----------");
+            for(Map.Entry<String, Integer> entry: cart.entrySet()){
+                Product product = Utils.readProductFile(entry.getKey());
+                int quantity = entry.getValue();
+                System.out.println("("+index+") "+product+" - Amount: "+quantity);
+                index++;
+            }
+            System.out.println("(0) Exit");
+            System.out.println("Choose product to purchase: ");
+            int selection = scan.nextInt();
+            if(selection == 0){
+                break;
+            }
+            else if(selection>0&&selection<=cart.size()){
+                String productID = (String) cart.keySet().toArray()[selection-1];
+                Product selectedProduct = Utils.readProductFile(productID);
+                Shop shop = Utils.readShopFile(selectedProduct.getShopID());
+                int availableAmount = shop.amountProduct(productID);
+                System.out.println("Available: "+availableAmount);
+                System.out.println("Amount: ");
+                int quantity = scan.nextInt();
 
+                if(quantity>0 && quantity <= cart.get(productID).intValue() && quantity <= availableAmount){
+                    double price = selectedProduct.getPrice();
+                    double totalMoney = quantity*price;
+                    activeCustomer.buyPartial(productID, quantity);
+                    activeCustomer.subtractMoney(totalMoney);
+                    shop.addMoney(totalMoney);
+                    shop.sellProduct(productID, quantity);
+
+                    //Create bill
+                    shop.updateBill(productID, activeCustomer.getID(), quantity);
+                    System.out.println("Purchased successfully!");
+                }
+                else{
+                    System.out.println("Invalid amount.");
+                }
+            }
+            else{
+                System.out.println("Invalid choice");
+            }
+        }
+        displayAfterAuthMenu();
+    }
+
+    public void displayPurchasedMenu(){
+        Utils.clearScreen();
+        String choice;
+        Map<String, Integer> purchased = activeCustomer.getPurchased();
+        System.out.println("---------- Purchased ----------");
+        int index = 1;
+        for (Map.Entry<String, Integer> entry: purchased.entrySet()){
+            Product product = Utils.readProductFile(entry.getKey());
+            Bill bill = Utils.readBillFile(product.getID());
+            System.out.println("("+index+") "+bill.getName()+" --- "+bill.getPrice()+" --- Amount: "+bill.amountOfPurchased(activeCustomer.getID()));
+        }
+        System.out.println("(0) Exit");
+        System.out.println("-------------------------------");
+        choice = scan.next();
+        displayInformationMenu();
     }
 
     public void displayInformationMenu(){
-
+        Utils.clearScreen();
+        String choice;
+        while(true){
+            System.out.println("---------- Information ----------");
+            System.out.println("Name ------- "+activeCustomer.getName());
+            System.out.println("ID --------- "+activeCustomer.getID());
+            System.out.println("Pass ------- "+activeCustomer.getPassword());
+            System.out.println("Balance ---- "+activeCustomer.getBalance());
+            System.out.println("(1) View Purchased Product");
+            System.out.println("(2) Deposit money");
+            System.out.println("(3) Withdraw money");
+            System.out.println("(3) Exit");
+            System.out.println("---------------------------------");
+            choice = scan.next();
+            if(choice == "1"){
+                displayPurchasedMenu();
+                return;
+            }
+            if(choice == "2"){
+                depositMenu();
+                return;
+            }
+            if(choice == "3"){
+                withdrawMenu();
+                return;
+            }
+            if(choice == "4"){
+                displayAfterAuthMenu();
+                return;
+            }
+        }
     }
+
+    public void depositMenu(){
+        Utils.clearScreen();
+        String value;
+        System.out.println("---------- Deposit ----------");
+        System.out.println("--- Balance: "+activeCustomer.getBalance());
+        System.out.println("--- Deposit: -----------------");
+        System.out.println("------------------------------");
+        value = scan.next();
+        Utils.clearScreen();
+        double amount = Double.parseDouble(value);
+        if(amount<0){
+            System.out.println("---------- Deposit ----------");
+            System.out.println("--- Balance: "+activeCustomer.getBalance());
+            System.out.println("--- Deposit: <Invalid amount>-");
+            System.out.println("------------------------------");
+            System.out.println("--- Press any key to exit ----");
+        }
+        else{
+            this.activeCustomer.addMoney(amount);
+            System.out.println("---------- Deposit ----------");
+            System.out.println("--- Balance: "+activeCustomer.getBalance());
+            System.out.println("--- Deposit: "+amount);
+            System.out.println("--- <Deposit successfully> ---");
+            System.out.println("--- Press any key to exit ----");
+        }
+        value = scan.next();
+        displayInformationMenu();
+    }
+
+    public void withdrawMenu(){
+        Utils.clearScreen();
+        String value;
+        System.out.println("---------- Withdraw ----------");
+        System.out.println("--- Balance: "+activeCustomer.getBalance());
+        System.out.println("--- Withdraw: ----------------");
+        System.out.println("------------------------------");
+        value = scan.next();
+        Utils.clearScreen();
+        double amount = Double.parseDouble(value);
+        if(!activeCustomer.hasMoney(amount)){
+            System.out.println("---------- Withdraw ----------");
+            System.out.println("--- Balance: "+activeCustomer.getBalance());
+            System.out.println("--- Withdraw: <Invalid amount>");
+            System.out.println("------------------------------");
+            System.out.println("--- Press any key to exit ----");
+        }
+        else{
+            System.out.println("---------- Withdraw ----------");
+            System.out.println("--- Balance: "+activeCustomer.getBalance());
+            System.out.println("--- Withdraw: "+amount);
+            System.out.println("--- <Deposit successfully> ---");
+            System.out.println("--- Press any key to exit ----");
+        }
+        value = scan.next();
+        displayInformationMenu();
+    }
+
 }

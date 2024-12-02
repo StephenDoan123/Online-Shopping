@@ -34,4 +34,13 @@ public class Seller extends User{
         super.subtractMoney(amount);
         Utils.writeSellerFile(this);
     }
+
+    public void depositToShop(double amount){
+
+    }
+    public void withdrawFromShop(double amount){
+
+    }
+
+
 }

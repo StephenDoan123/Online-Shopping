@@ -11,6 +11,7 @@ public class Shop implements ManageProduct {
     private String name;
     private String ID;
     private Category category;
+    private double balance;
     private Map<String, Integer> goods;
     private ArrayList<String> bills;
 
@@ -20,10 +21,11 @@ public class Shop implements ManageProduct {
         this.ID = ID;
         goods = new HashMap<>();
     }
-    public Shop(String name, String ID, Category category){
+    public Shop(String name, String ID, Category category, double balance){
         this.name = name;
         this.ID = ID;
         this.category = category;
+        this.balance = balance;
         goods = new HashMap<>();
     }
 
@@ -42,6 +44,9 @@ public class Shop implements ManageProduct {
     public ArrayList<String> getBills(){
         return this.bills;
     }
+    public double getBalance(){
+        return this.balance;
+    }
 
 
     public void setName(String name){
@@ -58,6 +63,15 @@ public class Shop implements ManageProduct {
     }
     public void setBills(ArrayList<String> bills){
         this.bills = bills;
+    }
+    public void setBalance(double balance){
+        this.balance = balance;
+    }
+    public void addMoney(double amount){
+        this.balance += amount;
+    }
+    public void subtractMoney(double amount){
+        this.balance -= amount;
     }
 
 
@@ -85,14 +99,24 @@ public class Shop implements ManageProduct {
     }
     public void reduceProduct(Map<String, Integer> list, String id, int amount){
         int left = list.get(id).intValue() - amount;
-        Integer value = Integer.valueOf(left);
-        list.put(id, value);
+        list.put(id, left);
         Utils.writeShopFile(this);
     }
 
     public void addToGoods(String id, int amount){
         this.addProduct(this.goods, id, amount);
     }
-
-
+    public void sellProduct(String id, int amount){
+        this.reduceProduct(goods, id, amount);
+    }
+    public void updateBill(String ID, String customerID, int amount){
+        if(!Utils.hasAccount(ID, "Bill")){
+            Product product = Utils.readProductFile(ID);
+            Bill bill = new Bill(product.getName(), product.getID(), product.getPrice());
+            Utils.writeBillFile(bill);
+        }
+        Bill bill = Utils.readBillFile(ID);
+        bill.updateCustomer(customerID, amount);
+        bills.add(bill.getID());
+    }
 }

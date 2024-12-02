@@ -65,11 +65,11 @@ public class Utils {
         return fileNames;
     }
 
-    public static ArrayList<Shop> showCategory(String targetCategory){
+    public static ArrayList<Shop> findCategory(String targetCategory){
         String[] files = allFiles("Shop");
         ArrayList<Shop> foundShops = new ArrayList<>();
         if(files.length == 0){
-            return foundShops;
+            return foundShops = new ArrayList<>(0);
         }
         for(String file:files){
             Shop shop = null;
@@ -90,11 +90,15 @@ public class Utils {
         return foundShops;
     }
 
+    public static ArrayList<Shop> findOwnShop(String targetCategory, String sellerID){
+        ArrayList<Shop> foundShops = new ArrayList<>();
+    }
+
     public static ArrayList<Product> findProduct(String targetProduct){
         String[] files = allFiles("Product");
         ArrayList<Product> foundProducts = new ArrayList<>();
         if(files.length == 0){
-            return foundProducts;
+            return foundProducts = new ArrayList<>(0);
         }
         for(String file: files){
             Product product = null;
@@ -276,6 +280,7 @@ public class Utils {
         String name = shop.getName();
         String ID = shop.getID();
         String categoryName = Utils.enumToString(shop.getCategory());
+        String balance = Double.toString(shop.getBalance());
         Map<String, Integer> goods = shop.getGoods();
         ArrayList<String> bills = shop.getBills();
 
@@ -288,6 +293,7 @@ public class Utils {
             writer.newLine();
             writer.write(categoryName);
             writer.newLine();
+            writer.write(balance);
             writer.write("Goods:");
             writer.newLine();
             for(String id: goods.keySet()){
@@ -316,9 +322,11 @@ public class Utils {
             String name = reader.readLine().trim();
             String categoryName = reader.readLine().trim();
             Category category = Utils.stringToEnum(categoryName);
+            double balance = Double.parseDouble(reader.readLine());
             shop.setID(id);
             shop.setName(name);
             shop.setCategory(category);
+            shop.setBalance(balance);
 
             Map<String, Integer> goods = new HashMap<>();
             String line = reader.readLine();
@@ -382,7 +390,7 @@ public class Utils {
     public static void writeBillFile(Bill bill){
         String name = bill.getName();
         String ID = bill.getID();
-        String price = Float.toString(bill.getPrice());
+        String price = Double.toString(bill.getPrice());
         String filePath = "Data/Bill/"+ID+".txt";
         Map<String, Integer> purchasedBy = bill.getPurchasedBy();
         try{
@@ -408,7 +416,7 @@ public class Utils {
             e.printStackTrace();
         }
     }
-    public static Bill readBilFile(String ID){
+    public static Bill readBillFile(String ID){
         String filePath = "Data/Bill/"+ID+".txt";
 
         Bill bill = new Bill(" ", " ",0);
@@ -418,7 +426,7 @@ public class Utils {
                 if(!line.trim().isEmpty()){
                     String id = line.trim();
                     String name = line.trim();
-                    Float price = Float.parseFloat(line.trim());
+                    Double price = Double.parseDouble(line.trim());
                     Map<String, Integer> purchasedBy = new HashMap<>();
 
                     if(line.equals("Purchased by:")){

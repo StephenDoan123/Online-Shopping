@@ -7,10 +7,10 @@ public class Product{
     double price;
 
     public Product(String name,String shopID, String ID, float price){
-        this.name = name;
-        this.shopID = shopID;
         this.ID = ID;
+        this.name = name;
         this.price = price;
+        this.shopID = shopID;
     }
 
     public String getName(){
