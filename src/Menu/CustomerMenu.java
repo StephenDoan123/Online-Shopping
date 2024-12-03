@@ -41,11 +41,11 @@ public class CustomerMenu {
     }
 
     public void displayRegisterMenu(){
-        Utils.clearScreen();
         String ID = Utils.generateID();
         String name = "";
         String password = "";
         while(name.length()==0){
+            Utils.clearScreen();
             System.out.println("------------ Register -------------");
             System.out.println("ID:       "+ID);
             System.out.println("Name: ------------");
@@ -231,8 +231,9 @@ public class CustomerMenu {
 
                     if (quantity > 0 && quantity <= availableQuantity) {
                         activeCustomer.addToCart(selectedProduct.getID(), quantity);
-                        Shop shop = Utils.readShopFile(selectedProduct.getShopID());
-                        shop.reduceProduct(shop.getGoods(), selectedProduct.getID(), quantity);
+                        /*Shop shop = Utils.readShopFile(selectedProduct.getShopID());
+                        shop.sellProduct(selectedProduct.getID(), quantity);
+                        shop.updateBill(selectedProduct.getID(), activeCustomer.getID(), quantity);*/
                         System.out.println("Added " + quantity + " " + selectedProduct.getName() + " to the cart!");
                     } else {
                         System.out.println("Invalid amount!");
@@ -282,7 +283,7 @@ public class CustomerMenu {
                     int quantity = scan.nextInt();
                     if(quantity>0 && quantity <= selectedShop.amountProduct(selectedProduct.getID())){
                         activeCustomer.addToCart(selectedProduct.getID(), quantity);
-                        selectedShop.reduceProduct(selectedShop.getGoods(), selectedProduct.getID(), quantity);
+
                         System.out.println("Added "+quantity+" "+selectedProduct.getName()+" to the cart!");
                     }
                     else System.out.println("Invalid amount!");
@@ -320,13 +321,18 @@ public class CustomerMenu {
                 Product selectedProduct = Utils.readProductFile(productID);
                 Shop shop = Utils.readShopFile(selectedProduct.getShopID());
                 int availableAmount = shop.amountProduct(productID);
-                System.out.println("Available: "+availableAmount);
-                System.out.println("Amount: ");
-                int quantity = scan.nextInt();
+                int quantity = 0;
+                double price;
+                double totalMoney = 0;
+                while(!activeCustomer.hasMoney(totalMoney)) {
+                    System.out.println("Available: " + availableAmount);
+                    System.out.println("Amount: ");
+                    quantity = scan.nextInt();
+                    price = selectedProduct.getPrice();
+                    totalMoney = quantity * price;
+                }
 
                 if(quantity>0 && quantity <= cart.get(productID).intValue() && quantity <= availableAmount){
-                    double price = selectedProduct.getPrice();
-                    double totalMoney = quantity*price;
                     activeCustomer.buyPartial(productID, quantity);
                     activeCustomer.subtractMoney(totalMoney);
                     shop.addMoney(totalMoney);

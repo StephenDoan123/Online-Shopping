@@ -6,7 +6,7 @@ public class Product{
     String ID;
     double price;
 
-    public Product(String name,String shopID, String ID, float price){
+    public Product(String name,String shopID, String ID, double price){
         this.ID = ID;
         this.name = name;
         this.price = price;
@@ -37,7 +37,7 @@ public class Product{
 
     @Override
     public String toString(){
-        return "Product: "+name+ " - Price: "+price+"\n";
+        return "Product: "+name+" - ID: "+ID+ " - Price: "+price+"\n";
     }
 
 }

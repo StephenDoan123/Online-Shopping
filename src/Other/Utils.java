@@ -19,6 +19,24 @@ public class Utils {
         }
     }
 
+    public static boolean isDouble(String value){
+        try{
+            Double.parseDouble(value);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
+    }
+
+    public static boolean isInteger(String value){
+        try{
+            Integer.parseInt(value);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
+    }
+
     public static String enumToString(Category category){
         return category.name();
     }
@@ -88,10 +106,6 @@ public class Utils {
             }
         }
         return foundShops;
-    }
-
-    public static ArrayList<Shop> findOwnShop(String targetCategory, String sellerID){
-        ArrayList<Shop> foundShops = new ArrayList<>();
     }
 
     public static ArrayList<Product> findProduct(String targetProduct){
@@ -190,13 +204,13 @@ public class Utils {
                             Purchased.put(productID, amount);
                         }
                     }
-
                     customer.setName(name);
                     customer.setPassword(password);
                     customer.setID(id);
                     customer.setBalance(balance);
                     customer.setCart(Cart);
                     customer.setPurchased(Purchased);
+                    reader.close();
                 }
             }
         } catch(IOException e){
@@ -261,6 +275,7 @@ public class Utils {
                             shops.add(billID);
                         }
                     }
+                    reader.close();
                     seller.setShops(shops);
                 }
 
@@ -348,7 +363,6 @@ public class Utils {
             reader.close();
             shop.setGoods(goods);
             shop.setBills(bills);
-
         } catch(IOException e){
             System.out.println("An error occurred while reading the file!");
             e.printStackTrace();
@@ -383,7 +397,33 @@ public class Utils {
     }
 
     public static Product readProductFile(String ID){
+        String filePath = "Data/Product/"+ID+".txt";
+        Product product = new Product(" ", " "," ", 0);
 
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while((line = reader.readLine()) != null){
+                if(!line.trim().isEmpty()){
+                    String name = line.trim();
+                    String shopID = line.trim();
+                    String id = line.trim();
+                    double price = Double.parseDouble(line.trim());
+                    Map<String, Integer> purchasedBy = new HashMap<>();
+                    product.setName(name);
+                    product.setID(id);
+                    product.setShopID(shopID);
+                    product.setPrice(price);
+                    reader.close();
+                }
+            }
+        } catch(IOException e){
+            System.out.println("An error occurred while reading the file.");
+            e.printStackTrace();
+        } catch (NumberFormatException e){
+            System.out.println("Error parsing bill ID.");
+            e.printStackTrace();
+        }
+        return product;
     }
 
     //================================================== Bill ========================================================================
@@ -437,7 +477,7 @@ public class Utils {
                             purchasedBy.put(customerID, amount);
                         }
                     }
-
+                    reader.close();
                     bill.setName(name);
                     bill.setID(id);
                     bill.setPrice(price);

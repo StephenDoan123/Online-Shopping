@@ -42,5 +42,14 @@ public class Seller extends User{
 
     }
 
+    public void addShop(String ID){
+        shops.add(ID);
+        Utils.writeSellerFile(this);
+    }
+
+    public void deleteShop(String ID){
+        shops.remove(ID);
+        Utils.writeSellerFile(this);
+    }
 
 }
