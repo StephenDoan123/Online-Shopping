@@ -21,20 +21,21 @@ public class CustomerMenu {
     public void displayAuthMenu(){
         String choice;
         while(true){
+            Utils.clearScreen();
             System.out.println("------------ Customer ------------");
             System.out.println("(1) Register");
             System.out.println("(2) Login");
             System.out.println("(3) Exit");
             choice = scan.next();
-            if(choice == "1"){
+            if(choice.equalsIgnoreCase("1")){
                 displayRegisterMenu();
                 return;
             }
-            if(choice == "2"){
+            if(choice.equalsIgnoreCase("2")){
                 displayLoginMenu();
                 return;
             }
-            if(choice == "3"){
+            if(choice.equalsIgnoreCase("3")){
                 return;
             }
         }
@@ -44,7 +45,7 @@ public class CustomerMenu {
         String ID = Utils.generateID();
         String name = "";
         String password = "";
-        while(name.length()==0){
+        while(name.isEmpty()){
             Utils.clearScreen();
             System.out.println("------------ Register -------------");
             System.out.println("ID:       "+ID);
@@ -54,7 +55,7 @@ public class CustomerMenu {
             System.out.println("-----------------------------------");
             name = scan.next();
         }
-        while(password.length()==0){
+        while(password.isEmpty()){
             Utils.clearScreen();
             System.out.println("------------ Register -------------");
             System.out.println("ID:       "+ID);
@@ -110,19 +111,19 @@ public class CustomerMenu {
             System.out.println("(4) Log out");
             System.out.println("-----------------------------------");
             choice = scan.next();
-            if(choice == "1"){
+            if(choice.equalsIgnoreCase("1")){
                 displayMallMenu();
                 return;
             }
-            if(choice == "2"){
+            if(choice.equalsIgnoreCase("2")){
                 displayCartMenu();
                 return;
             }
-            if(choice == "3"){
+            if(choice.equalsIgnoreCase("3")){
                 displayInformationMenu();
                 return;
             }
-            if(choice == "4"){
+            if(choice.equalsIgnoreCase("4")){
                 Utils.writeCustomerFile(activeCustomer);
                 activeCustomer = null;
                 displayAuthMenu();
@@ -141,15 +142,15 @@ public class CustomerMenu {
             System.out.println("(3) Exit");
             System.out.println("-----------------------------------");
             choice = scan.next();
-            if(choice == "1"){
+            if(choice.equalsIgnoreCase("1")){
                 displayCategory();
                 return;
             }
-            if(choice == "2"){
+            if(choice.equalsIgnoreCase("2")){
                 displaySearchMenu();
                 return;
             }
-            if(choice == "3"){
+            if(choice.equalsIgnoreCase("3")){
                 displayAfterAuthMenu();
                 return;
             }
@@ -168,23 +169,23 @@ public class CustomerMenu {
             System.out.println("(5) Exit");
             System.out.println("------------------------------------");
             choice = scan.next();
-            if(choice == "1"){
+            if(choice.equalsIgnoreCase("1")){
                 displayProductCategory("SPORTS");
                 return;
             }
-            if(choice == "2"){
+            if(choice.equalsIgnoreCase("2")){
                 displayProductCategory("ELECTRONICS");
                 return;
             }
-            if(choice == "3"){
+            if(choice.equalsIgnoreCase("3")){
                 displayProductCategory("CLOTHES");
                 return;
             }
-            if(choice == "4"){
+            if(choice.equalsIgnoreCase("4")){
                 displayProductCategory("FOOD");
                 return;
             }
-            if(choice == "5"){
+            if(choice.equalsIgnoreCase("5")){
                 displayMallMenu();
                 return;
             }
@@ -198,8 +199,8 @@ public class CustomerMenu {
         Map<Product, Integer> products = new HashMap<>();
 
         //==================== Duyệt qua các file shop --> đọc file product
-        for (int i = 0; i < shops.size(); i++) {
-            for (Map.Entry<String, Integer> entry : shops.get(i).getGoods().entrySet()) {
+        for (Shop shop : shops) {
+            for (Map.Entry<String, Integer> entry : shop.getGoods().entrySet()) {
                 Product product = Utils.readProductFile(entry.getKey());
                 Integer amount = entry.getValue();
                 products.put(product, amount);
@@ -332,7 +333,7 @@ public class CustomerMenu {
                     totalMoney = quantity * price;
                 }
 
-                if(quantity>0 && quantity <= cart.get(productID).intValue() && quantity <= availableAmount){
+                if(quantity>0 && quantity <= cart.get(productID) && quantity <= availableAmount){
                     activeCustomer.buyPartial(productID, quantity);
                     activeCustomer.subtractMoney(totalMoney);
                     shop.addMoney(totalMoney);
@@ -350,6 +351,7 @@ public class CustomerMenu {
                 System.out.println("Invalid choice");
             }
         }
+        choice = scan.next();
         displayAfterAuthMenu();
     }
 
@@ -385,36 +387,39 @@ public class CustomerMenu {
             System.out.println("(3) Exit");
             System.out.println("---------------------------------");
             choice = scan.next();
-            if(choice == "1"){
+            if(choice.equalsIgnoreCase("1")){
                 displayPurchasedMenu();
                 return;
             }
-            if(choice == "2"){
-                depositMenu();
+            if(choice.equalsIgnoreCase("2")){
+                displayDepositMenu();
                 return;
             }
-            if(choice == "3"){
-                withdrawMenu();
+            if(choice.equalsIgnoreCase("3")){
+                displayWithdrawMenu();
                 return;
             }
-            if(choice == "4"){
+            if(choice.equalsIgnoreCase("4")){
                 displayAfterAuthMenu();
                 return;
             }
         }
     }
 
-    public void depositMenu(){
-        Utils.clearScreen();
-        String value;
-        System.out.println("---------- Deposit ----------");
-        System.out.println("--- Balance: "+activeCustomer.getBalance());
-        System.out.println("--- Deposit: -----------------");
-        System.out.println("------------------------------");
-        value = scan.next();
-        Utils.clearScreen();
-        double amount = Double.parseDouble(value);
+    public void displayDepositMenu(){
+        String value = "";
+        double amount = -1;
+        while(value.isEmpty() || !Utils.isDouble(value)){
+            Utils.clearScreen();
+            System.out.println("---------- Deposit ----------");
+            System.out.println("--- Balance: "+activeCustomer.getBalance());
+            System.out.println("--- Deposit: -----------------");
+            System.out.println("------------------------------");
+            value = scan.next();
+        }
+        amount = Double.parseDouble(value);
         if(amount<0){
+            Utils.clearScreen();
             System.out.println("---------- Deposit ----------");
             System.out.println("--- Balance: "+activeCustomer.getBalance());
             System.out.println("--- Deposit: <Invalid amount>-");
@@ -422,6 +427,7 @@ public class CustomerMenu {
             System.out.println("--- Press any key to exit ----");
         }
         else{
+            Utils.clearScreen();
             this.activeCustomer.addMoney(amount);
             System.out.println("---------- Deposit ----------");
             System.out.println("--- Balance: "+activeCustomer.getBalance());
@@ -433,7 +439,7 @@ public class CustomerMenu {
         displayInformationMenu();
     }
 
-    public void withdrawMenu(){
+    public void displayWithdrawMenu(){
         Utils.clearScreen();
         String value;
         System.out.println("---------- Withdraw ----------");
@@ -441,9 +447,9 @@ public class CustomerMenu {
         System.out.println("--- Withdraw: ----------------");
         System.out.println("------------------------------");
         value = scan.next();
-        Utils.clearScreen();
         double amount = Double.parseDouble(value);
         if(!activeCustomer.hasMoney(amount)){
+            Utils.clearScreen();
             System.out.println("---------- Withdraw ----------");
             System.out.println("--- Balance: "+activeCustomer.getBalance());
             System.out.println("--- Withdraw: <Invalid amount>");
@@ -451,10 +457,12 @@ public class CustomerMenu {
             System.out.println("--- Press any key to exit ----");
         }
         else{
+            activeCustomer.subtractMoney(amount);
+            Utils.clearScreen();
             System.out.println("---------- Withdraw ----------");
             System.out.println("--- Balance: "+activeCustomer.getBalance());
             System.out.println("--- Withdraw: "+amount);
-            System.out.println("--- <Deposit successfully> ---");
+            System.out.println("--- <Withdraw successfully> ---");
             System.out.println("--- Press any key to exit ----");
         }
         value = scan.next();

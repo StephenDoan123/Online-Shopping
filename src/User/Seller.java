@@ -35,13 +35,6 @@ public class Seller extends User{
         Utils.writeSellerFile(this);
     }
 
-    public void depositToShop(double amount){
-
-    }
-    public void withdrawFromShop(double amount){
-
-    }
-
     public void addShop(String ID){
         shops.add(ID);
         Utils.writeSellerFile(this);

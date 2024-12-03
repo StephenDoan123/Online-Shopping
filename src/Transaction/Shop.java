@@ -12,6 +12,7 @@ public class Shop implements ManageProduct {
     private String ID;
     private Category category;
     private double balance;
+    private String ownerID;
     private Map<String, Integer> goods;
     private ArrayList<String> bills;
 
@@ -47,6 +48,9 @@ public class Shop implements ManageProduct {
     public double getBalance(){
         return this.balance;
     }
+    public String getOwnerID(){
+        return this.ownerID;
+    }
 
 
     public void setName(String name){
@@ -69,27 +73,35 @@ public class Shop implements ManageProduct {
     }
     public void addMoney(double amount){
         this.balance += amount;
+        Utils.writeShopFile(this);
     }
     public void subtractMoney(double amount){
         this.balance -= amount;
+        Utils.writeShopFile(this);
+    }
+    public void setOwnerID(String ownerID){
+        this.ownerID = ownerID;
+    }
+
+    public boolean hasMoney(double amount){
+        if(amount<0) return false;
+        return this.balance >= amount;
     }
 
 
     public int amountProduct(String id){
-        return goods.get(id).intValue();
+        return goods.get(id);
     }
 
 
     //====================================== Manage Product =============================================
     @Override
     public void addProduct(Map<String, Integer> list, String id, int amount){
-        Integer a = Integer.valueOf(amount);
         list.put(id, list.getOrDefault(id, 0)+amount);
         Utils.writeShopFile(this);
     }
 
     public void removeProduct(Map<String, Integer> list, String id, int amount){
-        Integer a = Integer.valueOf(amount);
         list.remove(id);
         Utils.writeShopFile(this);
     }
@@ -98,7 +110,7 @@ public class Shop implements ManageProduct {
         Utils.writeShopFile(this);
     }
     public void reduceProduct(Map<String, Integer> list, String id, int amount){
-        int left = list.get(id).intValue() - amount;
+        int left = list.get(id) - amount;
         list.put(id, left);
         Utils.writeShopFile(this);
     }
@@ -117,6 +129,9 @@ public class Shop implements ManageProduct {
         }
         Bill bill = Utils.readBillFile(ID);
         bill.updateCustomer(customerID, amount);
+        double totalMoney = bill.getPrice()*amount;
+        addMoney(totalMoney);
         bills.add(bill.getID());
+        Utils.writeShopFile(this);
     }
 }

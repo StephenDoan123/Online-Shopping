@@ -41,8 +41,7 @@ public class Utils {
         return category.name();
     }
     public static Category stringToEnum(String name){
-        Category category = Category.valueOf(Category.class, name);
-        return category;
+        return Category.valueOf(Category.class, name);
     }
 
     public static boolean hasAccount(String ID, String dataFolder){
@@ -70,6 +69,12 @@ public class Utils {
             if(!Character.isDigit(ID.charAt(i))) return false;
         }
         return true;
+    }
+
+    public static boolean deleteFile(String ID){
+        File file = new File(ID);
+        if(file.exists()) return file.delete();
+        else return false;
     }
 
     public static String[] allFiles(String target){
@@ -142,8 +147,7 @@ public class Utils {
         Map<String, Integer> purchased = customer.getPurchased();
 
         String filePath = "Data/Customer/"+ID+".txt";
-        try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
             writer.write(ID);
             writer.newLine();
             writer.write(name);
@@ -165,9 +169,6 @@ public class Utils {
                 writer.write("ID: "+id+", amount: "+Integer.toString(purchased.get(id)));
                 writer.newLine();
             }
-
-            writer.close();
-            System.out.println("Save successfully!");
         } catch(IOException e){
             System.out.println("An error occurred!");
             e.printStackTrace();
@@ -210,7 +211,6 @@ public class Utils {
                     customer.setBalance(balance);
                     customer.setCart(Cart);
                     customer.setPurchased(Purchased);
-                    reader.close();
                 }
             }
         } catch(IOException e){
@@ -230,8 +230,7 @@ public class Utils {
         String balance = Double.toString(seller.getBalance());
         ArrayList<String> shops = seller.getShops();
         String filePath = "Data/Seller/"+ID+".txt";
-        try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
             writer.write(ID);
             writer.newLine();
             writer.write(name);
@@ -246,7 +245,6 @@ public class Utils {
                 writer.write("ID: "+id);
                 writer.newLine();
             }
-            System.out.println("Save successfully!");
         } catch(IOException e){
             System.out.println("An error occurred!");
             e.printStackTrace();
@@ -275,10 +273,8 @@ public class Utils {
                             shops.add(billID);
                         }
                     }
-                    reader.close();
                     seller.setShops(shops);
                 }
-
             }
         } catch(IOException e){
             System.out.println("An error occurred while reading the file.");
@@ -296,12 +292,12 @@ public class Utils {
         String ID = shop.getID();
         String categoryName = Utils.enumToString(shop.getCategory());
         String balance = Double.toString(shop.getBalance());
+        String ownerID = shop.getOwnerID();
         Map<String, Integer> goods = shop.getGoods();
         ArrayList<String> bills = shop.getBills();
 
         String filePath = "Data/Shop/"+ID+".txt";
-        try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
             writer.write(ID);
             writer.newLine();
             writer.write(name);
@@ -309,6 +305,9 @@ public class Utils {
             writer.write(categoryName);
             writer.newLine();
             writer.write(balance);
+            writer.newLine();
+            writer.write(ownerID);
+            writer.newLine();
             writer.write("Goods:");
             writer.newLine();
             for(String id: goods.keySet()){
@@ -321,9 +320,6 @@ public class Utils {
                 writer.write("ID: "+id);
                 writer.newLine();
             }
-
-            writer.close();
-            System.out.println("Save successfully!");
         } catch(IOException e){
             System.out.println("An error occurred!");
             e.printStackTrace();
@@ -338,10 +334,12 @@ public class Utils {
             String categoryName = reader.readLine().trim();
             Category category = Utils.stringToEnum(categoryName);
             double balance = Double.parseDouble(reader.readLine());
+            String ownerID = reader.readLine().trim();
             shop.setID(id);
             shop.setName(name);
             shop.setCategory(category);
             shop.setBalance(balance);
+            shop.setOwnerID(ownerID);
 
             Map<String, Integer> goods = new HashMap<>();
             String line = reader.readLine();
@@ -360,7 +358,6 @@ public class Utils {
                     bills.add(billID);
                 }
             }
-            reader.close();
             shop.setGoods(goods);
             shop.setBills(bills);
         } catch(IOException e){
@@ -379,8 +376,7 @@ public class Utils {
         String shopID = product.getShopID();
 
         String filePath = "Data/Product/"+ID+".txt";
-        try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
             writer.write(ID);
             writer.newLine();
             writer.write(name);
@@ -388,8 +384,6 @@ public class Utils {
             writer.write(price);
             writer.newLine();
             writer.write(shopID);
-            writer.close();
-            System.out.println("Save successfully!");
         } catch(IOException e){
             System.out.println("An error occurred!");
             e.printStackTrace();
@@ -413,7 +407,6 @@ public class Utils {
                     product.setID(id);
                     product.setShopID(shopID);
                     product.setPrice(price);
-                    reader.close();
                 }
             }
         } catch(IOException e){
@@ -433,8 +426,7 @@ public class Utils {
         String price = Double.toString(bill.getPrice());
         String filePath = "Data/Bill/"+ID+".txt";
         Map<String, Integer> purchasedBy = bill.getPurchasedBy();
-        try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
             writer.write(ID);
             writer.newLine();
             writer.write(name);
@@ -449,13 +441,13 @@ public class Utils {
                 writer.newLine();
             }
 
-            writer.close();
-            System.out.println("Save successfully!");
         } catch(IOException e){
             System.out.println("An error occurred!");
             e.printStackTrace();
         }
     }
+
+
     public static Bill readBillFile(String ID){
         String filePath = "Data/Bill/"+ID+".txt";
 
@@ -466,7 +458,7 @@ public class Utils {
                 if(!line.trim().isEmpty()){
                     String id = line.trim();
                     String name = line.trim();
-                    Double price = Double.parseDouble(line.trim());
+                    double price = Double.parseDouble(line.trim());
                     Map<String, Integer> purchasedBy = new HashMap<>();
 
                     if(line.equals("Purchased by:")){
@@ -477,13 +469,13 @@ public class Utils {
                             purchasedBy.put(customerID, amount);
                         }
                     }
-                    reader.close();
                     bill.setName(name);
                     bill.setID(id);
                     bill.setPrice(price);
                     bill.setPurchasedBy(purchasedBy);
                 }
             }
+
         } catch(IOException e){
             System.out.println("An error occurred while reading the file.");
             e.printStackTrace();

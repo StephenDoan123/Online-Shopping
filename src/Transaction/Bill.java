@@ -45,7 +45,19 @@ public class Bill {
         Utils.writeBillFile(this);
     }
     public int amountOfPurchased(String customerID){
-        int amount =  purchasedBy.get(customerID);
-        return amount;
+        return purchasedBy.get(customerID);
+    }
+
+    public String printPurchased(){
+        StringBuilder result = new StringBuilder();
+        for(Map.Entry<String, Integer> entry: purchasedBy.entrySet()){
+            result.append("<").append(entry.getKey()).append(": ").append(entry.getValue()).append("> ");
+        }
+        return result.toString().trim();
+    }
+
+    @Override
+    public String toString(){
+        return "Name: "+name+" ID: "+ID+" Price: "+price;
     }
 }
