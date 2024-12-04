@@ -21,6 +21,7 @@ public class Shop implements ManageProduct {
         this.name = name;
         this.ID = ID;
         goods = new HashMap<>();
+        bills = new ArrayList<>();
     }
     public Shop(String name, String ID, Category category, double balance){
         this.name = name;
@@ -28,6 +29,7 @@ public class Shop implements ManageProduct {
         this.category = category;
         this.balance = balance;
         goods = new HashMap<>();
+        bills = new ArrayList<>();
     }
 
     public String getName(){

@@ -195,7 +195,7 @@ public class CustomerMenu {
     public void displayProductCategory(String category){
         Utils.clearScreen();
         String choice;
-        ArrayList<Shop> shops = Utils.findCategory(category);
+        ArrayList<Shop> shops = Utils.findShopsByCategory(category);
         Map<Product, Integer> products = new HashMap<>();
 
         //==================== Duyệt qua các file shop --> đọc file product
@@ -261,6 +261,7 @@ public class CustomerMenu {
             ArrayList<Product> foundProducts = Utils.findProduct(choice);
             if(foundProducts.isEmpty()){
                 System.out.println("No "+choice+" founded!");
+                System.out.println("-- <Press any key to exit> --");
             }
             else{
                 System.out.println("---------- "+choice+" ----------");
@@ -384,7 +385,7 @@ public class CustomerMenu {
             System.out.println("(1) View Purchased Product");
             System.out.println("(2) Deposit money");
             System.out.println("(3) Withdraw money");
-            System.out.println("(3) Exit");
+            System.out.println("(4) Exit");
             System.out.println("---------------------------------");
             choice = scan.next();
             if(choice.equalsIgnoreCase("1")){

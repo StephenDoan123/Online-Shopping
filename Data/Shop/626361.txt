@@ -1,0 +1,8 @@
+626361
+Apple
+ELECTRONICS
+500.0
+391439
+Goods:
+ID: 427885, amount: 5
+Bills:

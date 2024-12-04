@@ -77,64 +77,59 @@ public class Utils {
         else return false;
     }
 
-    public static String[] allFiles(String target){
-        String folderPath = "C://Users//Os//IdeaProjects//OnlineShopping//Data//"+target;
-
+    public static ArrayList<Shop> findShopsByCategory(String targetCategory){
+        String folderPath = "Data/Shop";
         File folder = new File(folderPath);
-        String[] fileNames = new String[0];
-        if(folder.isDirectory()){
-            fileNames = folder.list();
+        ArrayList<Shop> matchingShops = new ArrayList<>();
+        if(!folder.exists() || !folder.isDirectory()){
+            System.out.println("Shop directory not found or is invalid: "+folderPath);
+            return matchingShops;
         }
-        return fileNames;
-    }
 
-    public static ArrayList<Shop> findCategory(String targetCategory){
-        String[] files = allFiles("Shop");
-        ArrayList<Shop> foundShops = new ArrayList<>();
-        if(files.length == 0){
-            return foundShops = new ArrayList<>(0);
+        String [] fileNames = folder.list();
+        if(fileNames == null || fileNames.length == 0){
+            System.out.println("No shop files found in the directory: "+folderPath);
+            return matchingShops;
         }
-        for(String file:files){
-            Shop shop = null;
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String shopID = reader.readLine();
-                String shopName = reader.readLine();
-                String category = reader.readLine();
 
-                if (category != null && category.equalsIgnoreCase(targetCategory)) {
-                    shop = Utils.readShopFile(shopID);
-                    foundShops.add(shop);
-                }
-            } catch (IOException e) {
-                System.out.println("An error occurs when reading  " + file);
-                e.printStackTrace();
+        for (String fileName: fileNames){
+            if(!fileName.endsWith(".txt")) continue;
+            String shopID = fileName.substring(0, fileName.length()-4);
+            Shop shop = Utils.readShopFile(shopID);
+            if(shop.getCategory()!=null && shop.getCategory().name().equalsIgnoreCase(targetCategory)){
+                matchingShops.add(shop);
             }
         }
-        return foundShops;
+        return matchingShops;
     }
 
-    public static ArrayList<Product> findProduct(String targetProduct){
-        String[] files = allFiles("Product");
-        ArrayList<Product> foundProducts = new ArrayList<>();
-        if(files.length == 0){
-            return foundProducts = new ArrayList<>(0);
-        }
-        for(String file: files){
-            Product product = null;
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String productID = reader.readLine();
-                String productName = reader.readLine();
+    public static ArrayList<Product> findProduct(String targetName){
+        String folderPath = "Data/Product";
+        File folder = new File(folderPath);
+        ArrayList<Product> matchingProducts = new ArrayList<>();
 
-                if (productName != null && productName.equalsIgnoreCase(targetProduct)) {
-                    product = Utils.readProductFile(productID);
-                    foundProducts.add(product);
-                }
-            } catch (IOException e) {
-                System.out.println("An error occurs when reading  " + file);
-                e.printStackTrace();
+        if (!folder.exists() || !folder.isDirectory()) {
+            System.out.println("Product directory not found or is invalid: " + folderPath);
+            return matchingProducts;
+        }
+
+        String[] fileNames = folder.list();
+        if (fileNames == null || fileNames.length == 0) {
+            System.out.println("No product files found in the directory: " + folderPath);
+            return matchingProducts;
+        }
+
+        for (String fileName : fileNames) {
+            if (!fileName.endsWith(".txt")) continue;
+            String productID = fileName.substring(0, fileName.length() - 4);
+            Product product = Utils.readProductFile(productID);
+
+            if (product.getName() != null && product.getName().equalsIgnoreCase(targetName)) {
+                matchingProducts.add(product);
             }
         }
-        return foundProducts;
+
+        return matchingProducts;
     }
     //==================================================  File =======================================================================
     //================================================== Customer ===================================================================
@@ -180,39 +175,39 @@ public class Utils {
 
         Customer customer = new Customer(" ", " "," ");
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String id = reader.readLine();
+            String name = reader.readLine();
+            String password = reader.readLine();
+            double balance = Double.parseDouble(reader.readLine());
+
+            String cartHeader = reader.readLine();
+            Map<String, Integer> cart = new HashMap<>();
             String line;
-            while((line = reader.readLine()) != null){
-                if(!line.trim().isEmpty()){
-                    String id = line.trim();
-                    String name = line.trim();
-                    String password = line.trim();
-                    double balance = Double.parseDouble(line.trim());
-                    Map<String, Integer> Cart = new HashMap<>();
-                    Map<String, Integer> Purchased = new HashMap<>();
-
-                    if(line.equals("Cart:")){
-                        while((line = reader.readLine()) != null && !line.equals("Purchased:")){
-                            String[] parts = line.split(", ");
-                            String productID = parts[0].split(": ")[1];
-                            int amount = Integer.parseInt(parts[1].split(": ")[1]);
-                            Cart.put(productID, amount);
-                        }
-
-                        while((line = reader.readLine())!=null){
-                            String[] parts = line.split(", ");
-                            String productID = parts[0].split(": ")[1];
-                            int amount = Integer.parseInt(parts[1].split(": ")[1]);
-                            Purchased.put(productID, amount);
-                        }
-                    }
-                    customer.setName(name);
-                    customer.setPassword(password);
-                    customer.setID(id);
-                    customer.setBalance(balance);
-                    customer.setCart(Cart);
-                    customer.setPurchased(Purchased);
+            while ((line = reader.readLine()) != null && !line.equals("Purchased:")) {
+                if (line.startsWith("ID: ")) {
+                    String[] parts = line.split(", amount: ");
+                    String productID = parts[0].substring(4);
+                    int amount = Integer.parseInt(parts[1]);
+                    cart.put(productID, amount);
                 }
             }
+
+            Map<String, Integer> purchased = new HashMap<>();
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("ID: ")) {
+                    String[] parts = line.split(", amount: ");
+                    String productID = parts[0].substring(4);
+                    int amount = Integer.parseInt(parts[1]);
+                    purchased.put(productID, amount);
+                }
+            }
+
+            customer.setID(ID);
+            customer.setName(name);
+            customer.setPassword(password);
+            customer.setBalance(balance);
+            customer.setCart(cart);
+            customer.setPurchased(purchased);
         } catch(IOException e){
             System.out.println("An error occurred while reading the file.");
             e.printStackTrace();
@@ -238,7 +233,7 @@ public class Utils {
             writer.write(password);
             writer.newLine();
             writer.write(balance);
-            writer.close();
+            writer.newLine();
             writer.write("Shops:");
             writer.newLine();
             for(String id: shops){
@@ -254,28 +249,24 @@ public class Utils {
         String filePath = "Data/Seller/"+ID+".txt";
         Seller seller = new Seller(" ", " ", " ", 0);
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String id = reader.readLine();
+            String name = reader.readLine();
+            String password = reader.readLine();
+            double balance = Double.parseDouble(reader.readLine());
+
+            String shopsID = reader.readLine();
+            ArrayList<String> shops = new ArrayList<>();
             String line;
             while((line = reader.readLine()) != null){
-                if(!line.trim().isEmpty()){
-                    String id = line.trim();
-                    String name = reader.readLine().trim();
-                    String password = reader.readLine().trim();
-                    double balance = Double.parseDouble(line.trim());
-                    seller.setName(name);
-                    seller.setPassword(password);
-                    seller.setID(id);
-                    seller.setBalance(balance);
-
-                    ArrayList<String> shops = new ArrayList<>();
-                    while ((line = reader.readLine()) != null) {
-                        if (line.startsWith("ID: ")) {
-                            String billID = line.substring(4);
-                            shops.add(billID);
-                        }
-                    }
-                    seller.setShops(shops);
+                if(line.startsWith("ID: ")){
+                    shops.add(line.substring(4));
                 }
             }
+            seller.setID(ID);
+            seller.setName(name);
+            seller.setPassword(password);
+            seller.setBalance(balance);
+            seller.setShops(shops);
         } catch(IOException e){
             System.out.println("An error occurred while reading the file.");
             e.printStackTrace();
@@ -395,20 +386,14 @@ public class Utils {
         Product product = new Product(" ", " "," ", 0);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while((line = reader.readLine()) != null){
-                if(!line.trim().isEmpty()){
-                    String name = line.trim();
-                    String shopID = line.trim();
-                    String id = line.trim();
-                    double price = Double.parseDouble(line.trim());
-                    Map<String, Integer> purchasedBy = new HashMap<>();
-                    product.setName(name);
-                    product.setID(id);
-                    product.setShopID(shopID);
-                    product.setPrice(price);
-                }
-            }
+            String id = reader.readLine();
+            String name = reader.readLine();
+            double price = Double.parseDouble(reader.readLine());
+            String shopID = reader.readLine();
+            product.setID(ID);
+            product.setName(name);
+            product.setPrice(price);
+            product.setShopID(shopID);
         } catch(IOException e){
             System.out.println("An error occurred while reading the file.");
             e.printStackTrace();
@@ -453,29 +438,25 @@ public class Utils {
 
         Bill bill = new Bill(" ", " ",0);
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while((line = reader.readLine()) != null){
-                if(!line.trim().isEmpty()){
-                    String id = line.trim();
-                    String name = line.trim();
-                    double price = Double.parseDouble(line.trim());
-                    Map<String, Integer> purchasedBy = new HashMap<>();
+            String id = reader.readLine();
+            String name = reader.readLine();
+            double price = Double.parseDouble(reader.readLine());
 
-                    if(line.equals("Purchased by:")){
-                        while((line = reader.readLine())!=null){
-                            String[] parts = line.split(", ");
-                            String customerID = parts[0].split(": ")[1];
-                            int amount = Integer.parseInt(parts[1].split(": ")[1]);
-                            purchasedBy.put(customerID, amount);
-                        }
-                    }
-                    bill.setName(name);
-                    bill.setID(id);
-                    bill.setPrice(price);
-                    bill.setPurchasedBy(purchasedBy);
+            String purchasedByHeader = reader.readLine();
+            Map<String, Integer> purchasedBy = new HashMap<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("Customer: ")) {
+                    String[] parts = line.split(", amount: ");
+                    String customerID = parts[0].substring(10);
+                    int amount = Integer.parseInt(parts[1]);
+                    purchasedBy.put(customerID, amount);
                 }
             }
-
+            bill.setName(name);
+            bill.setID(ID);
+            bill.setPrice(price);
+            bill.setPurchasedBy(purchasedBy);
         } catch(IOException e){
             System.out.println("An error occurred while reading the file.");
             e.printStackTrace();

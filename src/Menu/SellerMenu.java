@@ -155,13 +155,15 @@ public class SellerMenu {
             }
             else if(selection>0&& selection<=sellerShop.size()){
                 selectedShop = sellerShop.get(selection-1);
+                displayShopMenu(selectedShop);
                 break;
             }
             else{
                 System.out.println("Invalid choice!");
             }
         }
-        displayShopMenu(selectedShop);
+        choice = scan.next();
+        displayAfterAuthMenu();
     }
 
     public void displayShopMenu(Shop shop){
@@ -193,7 +195,10 @@ public class SellerMenu {
                 return;
             }
             if(choice.equalsIgnoreCase("5")){
-                displayAllShopMenu();
+                //-----------------------------------------------Sửa ở chỗ này
+                Utils.writeShopFile(shop);
+                shop = null;
+                //displayAllShopMenu();
                 return;
             }
         }
@@ -446,6 +451,7 @@ public class SellerMenu {
             }
             if(choice.equalsIgnoreCase("3")){
                 displayShopMenu(shop);
+                return;
             }
         }
     }
@@ -585,8 +591,11 @@ public class SellerMenu {
         }
         Shop shop = new Shop(name, ID, shopCategory, 0);
         shop.setOwnerID(activeSeller.getID());
-        Utils.writeShopFile(shop);
         shop.setCategory(shopCategory);
+        Utils.writeShopFile(shop);
+
+        activeSeller.getShops().add(ID);
+        Utils.writeSellerFile(activeSeller);
         Utils.clearScreen();
         System.out.println("----------- Create Shop ----------");
         System.out.println(" Category: " + category);
@@ -619,8 +628,85 @@ public class SellerMenu {
                 System.out.println("--- Name: "+shop.getName()+" ID: "+shop.getID()+" Category: "+Utils.enumToString(shop.getCategory()));
             }
         }
-        System.out.println("----- <Press any key to exit> ----");
+        System.out.println("(1) Deposit money");
+        System.out.println("(2) Withdraw money");
+        System.out.println("(3) Exit");
+        System.out.println("----------------------------------");
         String choice = scan.next();
-        displayAfterAuthMenu();
+        if(choice.equalsIgnoreCase("1")){
+            displayDepositMenu();
+            return;
+        }
+        if(choice.equalsIgnoreCase("2")){
+            displayWithDrawMenu();
+            return;
+        }
+        if(choice.equalsIgnoreCase("3")){
+            displayAfterAuthMenu();
+            return;
+        }
+    }
+
+    public void displayDepositMenu(){
+        String value = "";
+        double amount = -1;
+        while(value.isEmpty() || !Utils.isDouble(value)){
+            Utils.clearScreen();
+            System.out.println("---------- Deposit ----------");
+            System.out.println("--- Balance: "+activeSeller.getBalance());
+            System.out.println("--- Deposit: -----------------");
+            System.out.println("------------------------------");
+            value = scan.next();
+        }
+        amount = Double.parseDouble(value);
+        if(amount<0){
+            Utils.clearScreen();
+            System.out.println("---------- Deposit ----------");
+            System.out.println("--- Balance: "+activeSeller.getBalance());
+            System.out.println("--- Deposit: <Invalid amount>-");
+            System.out.println("------------------------------");
+            System.out.println("--- Press any key to exit ----");
+        }
+        else{
+            Utils.clearScreen();
+            this.activeSeller.addMoney(amount);
+            System.out.println("---------- Deposit ----------");
+            System.out.println("--- Balance: "+activeSeller.getBalance());
+            System.out.println("--- Deposit: "+amount);
+            System.out.println("--- <Deposit successfully> ---");
+            System.out.println("--- Press any key to exit ----");
+        }
+        value = scan.next();
+        displayInformationMenu();
+    }
+
+    public void displayWithDrawMenu(){
+        Utils.clearScreen();
+        String value;
+        System.out.println("---------- Withdraw ----------");
+        System.out.println("--- Balance: "+activeSeller.getBalance());
+        System.out.println("--- Withdraw: ----------------");
+        System.out.println("------------------------------");
+        value = scan.next();
+        double amount = Double.parseDouble(value);
+        if(!activeSeller.hasMoney(amount)){
+            Utils.clearScreen();
+            System.out.println("---------- Withdraw ----------");
+            System.out.println("--- Balance: "+activeSeller.getBalance());
+            System.out.println("--- Withdraw: <Invalid amount>");
+            System.out.println("------------------------------");
+            System.out.println("--- Press any key to exit ----");
+        }
+        else{
+            activeSeller.subtractMoney(amount);
+            Utils.clearScreen();
+            System.out.println("---------- Withdraw ----------");
+            System.out.println("--- Balance: "+activeSeller.getBalance());
+            System.out.println("--- Withdraw: "+amount);
+            System.out.println("--- <Withdraw successfully> ---");
+            System.out.println("--- Press any key to exit ----");
+        }
+        value = scan.next();
+        displayInformationMenu();
     }
 }
