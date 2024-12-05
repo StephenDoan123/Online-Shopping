@@ -334,14 +334,17 @@ public class Utils {
 
             Map<String, Integer> goods = new HashMap<>();
             String line = reader.readLine();
-            while((line = reader.readLine()) != null && !line.equals("Bills: ")){
+            while((line = reader.readLine()) != null && !line.equals("Bills:")){
                 if(line.startsWith("ID: ")){
                     String[] parts = line.split(", ");
                     String productID = parts[0].substring(4);
+                    System.out.println("Hello bug");
                     int amount = Integer.parseInt(parts[1].substring(8));
+                    System.out.println("Hello bug 2");
                     goods.put(productID, amount);
                 }
             }
+
             ArrayList<String> bills = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("ID: ")) {

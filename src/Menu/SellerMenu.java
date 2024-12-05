@@ -135,6 +135,8 @@ public class SellerMenu {
         String choice;
         ArrayList<String> shopID = activeSeller.getShops();
         ArrayList<Shop> sellerShop = new ArrayList<>();
+
+        // ============ Lỗi ở đây
         for (String s : shopID) {
             Shop shop = Utils.readShopFile(s);
             sellerShop.add(shop);
@@ -162,7 +164,6 @@ public class SellerMenu {
                 System.out.println("Invalid choice!");
             }
         }
-        choice = scan.next();
         displayAfterAuthMenu();
     }
 

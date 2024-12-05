@@ -54,7 +54,7 @@ public class Customer extends User implements ManageProduct{
         Utils.writeCustomerFile(this);
     }
     public void reduceProduct(Map<String, Integer> list, String id, int amount){
-        int left = list.get(id).intValue() - amount;
+        int left = list.get(id) - amount;
         list.put(id, left);
         Utils.writeCustomerFile(this);
     }

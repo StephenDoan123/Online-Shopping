@@ -1,7 +1,0 @@
-235812
-Jeans
-CLOTHES
-0.0
-391439
-Goods:
-Bills:

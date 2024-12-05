@@ -262,6 +262,8 @@ public class CustomerMenu {
             if(foundProducts.isEmpty()){
                 System.out.println("No "+choice+" founded!");
                 System.out.println("-- <Press any key to exit> --");
+                choice = scan.next();
+                break;
             }
             else{
                 System.out.println("---------- "+choice+" ----------");
@@ -287,15 +289,21 @@ public class CustomerMenu {
                         activeCustomer.addToCart(selectedProduct.getID(), quantity);
 
                         System.out.println("Added "+quantity+" "+selectedProduct.getName()+" to the cart!");
+                        System.out.println("--- <Press any key to exit> ---");
+                        choice = scan.next();
+                        break;
                     }
-                    else System.out.println("Invalid amount!");
+                    else {
+                        System.out.println("Invalid amount!");
+                        System.out.println("--- <Press any key to exit> ---");
+                    }
                 }
                 else{
                     System.out.println("Invalid choice!");
                 }
             }
         }
-        choice = scan.next();
+        // choice = scan.next();
         displayMallMenu();
     }
 
@@ -326,33 +334,41 @@ public class CustomerMenu {
                 int quantity = 0;
                 double price;
                 double totalMoney = 0;
-                while(!activeCustomer.hasMoney(totalMoney)) {
+                while(activeCustomer.hasMoney(totalMoney)) {
                     System.out.println("Available: " + availableAmount);
-                    System.out.println("Amount: ");
+                    System.out.println("Purchased quantity: ");
                     quantity = scan.nextInt();
                     price = selectedProduct.getPrice();
                     totalMoney = quantity * price;
-                }
 
-                if(quantity>0 && quantity <= cart.get(productID) && quantity <= availableAmount){
-                    activeCustomer.buyPartial(productID, quantity);
-                    activeCustomer.subtractMoney(totalMoney);
-                    shop.addMoney(totalMoney);
-                    shop.sellProduct(productID, quantity);
+                    // =============================== Kiểm tra số lượng
+                    if(quantity > 0 && quantity <=cart.get(productID) && quantity <=availableAmount){
+                        activeCustomer.buyPartial(productID, quantity);
+                        activeCustomer.subtractMoney(totalMoney);
+                        shop.addMoney(totalMoney);
+                        shop.sellProduct(productID, quantity);
 
-                    //Create bill
-                    shop.updateBill(productID, activeCustomer.getID(), quantity);
-                    System.out.println("Purchased successfully!");
-                }
-                else{
-                    System.out.println("Invalid amount.");
+                        // Update bill
+                        shop.updateBill(productID, activeCustomer.getID(), quantity);
+                        System.out.println("--- <Purchased successfully!> ---");
+                        System.out.println("---- <Press any key to exit> ----");
+                        choice = scan.next();
+                        break;
+                    }
+                    else{
+                        System.out.println("Invalid amount.");
+                        System.out.println("--- <Press any key to exit> ---");
+                        scan.next();
+                        break;
+                    }
                 }
             }
             else{
                 System.out.println("Invalid choice");
+                System.out.println("--- <Press any key to exit> ---");
+                choice = scan.next();
             }
         }
-        choice = scan.next();
         displayAfterAuthMenu();
     }
 
