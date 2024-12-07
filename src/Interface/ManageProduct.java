@@ -6,7 +6,7 @@ import Transaction.Product;
 public interface ManageProduct {
     public void addProduct(Map<String, Integer> list, String id, int amount);
 
-    public void removeProduct(Map<String, Integer> list, String id, int amount);
+    public void removeProduct(Map<String, Integer> list, String id);
 
     public void clearProduct(Map<String, Integer> list);
 

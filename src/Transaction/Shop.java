@@ -14,14 +14,14 @@ public class Shop implements ManageProduct {
     private double balance;
     private String ownerID;
     private Map<String, Integer> goods;
-    private ArrayList<String> bills;
+    private ArrayList<String> solds;
 
 
     public Shop(String name, String ID){
         this.name = name;
         this.ID = ID;
         goods = new HashMap<>();
-        bills = new ArrayList<>();
+        solds = new ArrayList<>();
     }
     public Shop(String name, String ID, Category category, double balance){
         this.name = name;
@@ -29,7 +29,7 @@ public class Shop implements ManageProduct {
         this.category = category;
         this.balance = balance;
         goods = new HashMap<>();
-        bills = new ArrayList<>();
+        solds = new ArrayList<>();
     }
 
     public String getName(){
@@ -44,8 +44,8 @@ public class Shop implements ManageProduct {
     public Map<String, Integer> getGoods(){
         return this.goods;
     }
-    public ArrayList<String> getBills(){
-        return this.bills;
+    public ArrayList<String> getSolds(){
+        return this.solds;
     }
     public double getBalance(){
         return this.balance;
@@ -67,8 +67,8 @@ public class Shop implements ManageProduct {
     public void setGoods(Map<String, Integer> goods){
         this.goods = goods;
     }
-    public void setBills(ArrayList<String> bills){
-        this.bills = bills;
+    public void setSolds(ArrayList<String> bills){
+        this.solds = bills;
     }
     public void setBalance(double balance){
         this.balance = balance;
@@ -103,7 +103,7 @@ public class Shop implements ManageProduct {
         Utils.writeShopFile(this);
     }
 
-    public void removeProduct(Map<String, Integer> list, String id, int amount){
+    public void removeProduct(Map<String, Integer> list, String id){
         list.remove(id);
         Utils.writeShopFile(this);
     }
@@ -123,17 +123,17 @@ public class Shop implements ManageProduct {
     public void sellProduct(String id, int amount){
         this.reduceProduct(goods, id, amount);
     }
-    public void updateBill(String ID, String customerID, int amount){
-        if(!Utils.hasAccount(ID, "Bill")){
+    public void updateSold(String ID, String customerID, int amount){
+        if(!Utils.hasAccount(ID, "Sold")){
             Product product = Utils.readProductFile(ID);
-            Bill bill = new Bill(product.getName(), product.getID(), product.getPrice());
-            Utils.writeBillFile(bill);
+            Sold sold = new Sold(product.getName(), product.getID(), product.getPrice());
+            Utils.writeSoldFile(sold);
         }
-        Bill bill = Utils.readBillFile(ID);
-        bill.updateCustomer(customerID, amount);
-        double totalMoney = bill.getPrice()*amount;
+        Sold sold = Utils.readSoldFile(ID);
+        sold.updateCustomer(customerID, amount);
+        double totalMoney = sold.getPrice()*amount;
         addMoney(totalMoney);
-        bills.add(bill.getID());
+        solds.add(sold.getID());
         Utils.writeShopFile(this);
     }
 }

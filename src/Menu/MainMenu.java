@@ -2,6 +2,7 @@ package Menu;
 
 import User.Customer;
 import User.Seller;
+import Other.Utils;
 
 import java.util.Scanner;
 
@@ -11,6 +12,7 @@ public class MainMenu {
     public void displayMainMenu(){
         String choice;
         while(true){
+            Utils.clearScreen();
             System.out.println("-------- Online Shopping System --------");
             System.out.println("(1) Customer");
             System.out.println("(2) Seller");
@@ -21,13 +23,15 @@ public class MainMenu {
                 Customer customer = new Customer("", "", "");
                 CustomerMenu customerMenu = new CustomerMenu(customer);
                 customerMenu.displayAuthMenu();
-                break;
+                displayMainMenu();
+                return;
             }
             else if(choice.equalsIgnoreCase("2")){
                 Seller seller = new Seller("", "", "");
                 SellerMenu sellerMenu = new SellerMenu(seller);
                 sellerMenu.displayAuthMenu();
-                break;
+                displayMainMenu();
+                return;
             }
             else if(choice.equalsIgnoreCase("3")){
                 break;

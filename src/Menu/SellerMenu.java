@@ -6,7 +6,7 @@ import User.Customer;
 import User.Seller;
 import Transaction.Shop;
 import Transaction.Product;
-import Transaction.Bill;
+import Transaction.Sold;
 
 import java.util.*;
 
@@ -136,7 +136,6 @@ public class SellerMenu {
         ArrayList<String> shopID = activeSeller.getShops();
         ArrayList<Shop> sellerShop = new ArrayList<>();
 
-        // ============ Lỗi ở đây
         for (String s : shopID) {
             Shop shop = Utils.readShopFile(s);
             sellerShop.add(shop);
@@ -158,10 +157,11 @@ public class SellerMenu {
             else if(selection>0&& selection<=sellerShop.size()){
                 selectedShop = sellerShop.get(selection-1);
                 displayShopMenu(selectedShop);
-                break;
             }
             else{
                 System.out.println("Invalid choice!");
+                System.out.println("--- <Press any key to exit> ---");
+                choice = scan.next();
             }
         }
         displayAfterAuthMenu();
@@ -196,10 +196,7 @@ public class SellerMenu {
                 return;
             }
             if(choice.equalsIgnoreCase("5")){
-                //-----------------------------------------------Sửa ở chỗ này
                 Utils.writeShopFile(shop);
-                shop = null;
-                //displayAllShopMenu();
                 return;
             }
         }
@@ -308,18 +305,26 @@ public class SellerMenu {
                         activeSeller.subtractMoney(totalMoney);
                         shop.addMoney(totalMoney);
                         selectedShop.sellProduct(selectedProduct.getID(), quantity);
-                        shop.updateBill(selectedProduct.getID(), activeSeller.getID(), quantity);
+                        shop.updateSold(selectedProduct.getID(), activeSeller.getID(), quantity);
 
                         System.out.println("Added "+quantity+" "+selectedProduct.getName()+" to the shop!");
+                        System.out.println("--- <Press any key to exit> ---");
+                        choice = scan.next();
+                        break;
                     }
                     else System.out.println("Invalid amount!");
+                    System.out.println("--- <Press any key to exit> ---");
+                    choice = scan.next();
+                    break;
                 }
                 else{
                     System.out.println("Invalid choice!");
+                    System.out.println("--- <Press any key to exit> ---");
+                    choice = scan.next();
+                    break;
                 }
             }
         }
-        choice = scan.next();
         displayProductMenu(shop);
     }
 
@@ -378,12 +383,11 @@ public class SellerMenu {
 
     public void removeProductMenu(Shop shop){
         String choice;
-        Map<String, Integer> goods = shop.getGoods();
         while(true) {
             Utils.clearScreen();
             System.out.println("---------- Remove Product ----------");
             int index = 1;
-            for (Map.Entry<String, Integer> entry : goods.entrySet()) {
+            for (Map.Entry<String, Integer> entry : shop.getGoods().entrySet()) {
                 Product product = Utils.readProductFile(entry.getKey());
                 int amount = entry.getValue();
                 System.out.println("(" + index + ") " + product + " - Amount: " + amount);
@@ -395,37 +399,37 @@ public class SellerMenu {
             if (selection == 0) {
                 break;
             }
-            else if(selection>0&&selection<=goods.size()){
-                String productID = (String) goods.keySet().toArray()[selection-1];
-                if(Utils.deleteFile(productID)) {
-                    goods.remove(productID);
-                    System.out.println("Delete product successfully!");
-                }
-                else{
-                    System.out.println("Delete product failed");
-                }
+            else if(selection>0 && selection <= shop.getGoods().size()){
+                System.out.println("Remove product...");
+                String productID = (String) shop.getGoods().keySet().toArray()[selection-1];
+                shop.removeProduct(shop.getGoods(), productID);
+                System.out.println("Remove product successfully!");
+                System.out.println("--- <Press any key to exit> ---");
+                choice = scan.next();
+                break;
             }
             else{
                 System.out.println("Invalid choice!");
+                System.out.println("--- <Press any key to exit> ---");
+                choice = scan.next();
             }
         }
-        choice = scan.next();
         displayProductMenu(shop);
     }
 
     public void displayBillMenu(Shop shop){
         Utils.clearScreen();
         String choice;
-        ArrayList<String> billID = shop.getBills();
-        ArrayList<Bill> bills = new ArrayList<>();
+        ArrayList<String> billID = shop.getSolds();
+        ArrayList<Sold> solds = new ArrayList<>();
         for(String id: billID){
-            Bill bill = Utils.readBillFile(id);
-            bills.add(bill);
+            Sold sold = Utils.readSoldFile(id);
+            solds.add(sold);
         }
         System.out.println("------------- Bill ------------");
-        for(Bill bill: bills){
-            System.out.println(bill);
-            System.out.println("Purchased by: "+bill.printPurchased());
+        for(Sold sold: solds){
+            System.out.println(sold);
+            System.out.println("Purchased by: "+sold.printPurchased());
         }
         System.out.println("--- <Press any key to exit> ---");
         choice = scan.next();
@@ -532,9 +536,11 @@ public class SellerMenu {
         System.out.println("Do you want to delete shop? (Y/N)");
         choice = scan.next();
         if(choice.equalsIgnoreCase("y")){
+            Utils.clearScreen();
             activeSeller.deleteShop(shop.getID());
             activeSeller.addMoney(shop.getBalance());
-            Utils.deleteFile(shop.getID());
+            Utils.writeSellerFile(activeSeller);
+            Utils.deleteFile(shop.getID(), "Data/Shop/");
             System.out.println("------------- Shop -------------");
             System.out.println("--- Delete shop successfully! --");
             System.out.println("---- <Press any key to exit> ---");
@@ -547,7 +553,7 @@ public class SellerMenu {
             System.out.println("---- <Press any key to exit> ---");
         }
         choice = scan.next();
-        displayAllShopMenu();
+        //displayAllShopMenu();
     }
 
     public void displayNewShopMenu(){

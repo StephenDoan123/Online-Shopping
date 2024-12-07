@@ -4,13 +4,13 @@ import Other.Utils;
 
 import java.util.*;
 
-public class Bill {
+public class Sold {
     String ID;
     String name;
     double price;
     Map<String, Integer> purchasedBy;
 
-    public Bill(String name, String ID, double price){
+    public Sold(String name, String ID, double price){
         this.name = name;
         this.ID = ID;
         this.price = price;
@@ -42,7 +42,7 @@ public class Bill {
 
     public void updateCustomer(String customerID, int amount){
         purchasedBy.put(customerID, purchasedBy.getOrDefault(customerID, 0)+amount);
-        Utils.writeBillFile(this);
+        Utils.writeSoldFile(this);
     }
     public int amountOfPurchased(String customerID){
         return purchasedBy.get(customerID);

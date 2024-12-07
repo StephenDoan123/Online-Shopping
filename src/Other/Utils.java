@@ -3,7 +3,7 @@ package Other;
 import java.io.*;
 import java.util.*;
 
-import Transaction.Bill;
+import Transaction.Sold;
 import Transaction.Shop;
 import User.Customer;
 import User.Seller;
@@ -71,10 +71,14 @@ public class Utils {
         return true;
     }
 
-    public static boolean deleteFile(String ID){
-        File file = new File(ID);
-        if(file.exists()) return file.delete();
-        else return false;
+    public static boolean deleteFile(String ID, String folderPath){
+        File file = new File(folderPath + ID+".txt");
+        if (file.exists()){
+            return file.delete();
+        }
+        else{
+            return false;
+        }
     }
 
     public static ArrayList<Shop> findShopsByCategory(String targetCategory){
@@ -285,7 +289,7 @@ public class Utils {
         String balance = Double.toString(shop.getBalance());
         String ownerID = shop.getOwnerID();
         Map<String, Integer> goods = shop.getGoods();
-        ArrayList<String> bills = shop.getBills();
+        ArrayList<String> solds = shop.getSolds();
 
         String filePath = "Data/Shop/"+ID+".txt";
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
@@ -305,9 +309,9 @@ public class Utils {
                 writer.write("ID: "+id+", amount: "+Integer.toString(goods.get(id)));
                 writer.newLine();
             }
-            writer.write("Bills:");
+            writer.write("Solds:");
             writer.newLine();
-            for(String id: bills){
+            for(String id: solds){
                 writer.write("ID: "+id);
                 writer.newLine();
             }
@@ -334,26 +338,24 @@ public class Utils {
 
             Map<String, Integer> goods = new HashMap<>();
             String line = reader.readLine();
-            while((line = reader.readLine()) != null && !line.equals("Bills:")){
+            while((line = reader.readLine()) != null && !line.equals("Solds:")){
                 if(line.startsWith("ID: ")){
                     String[] parts = line.split(", ");
                     String productID = parts[0].substring(4);
-                    System.out.println("Hello bug");
                     int amount = Integer.parseInt(parts[1].substring(8));
-                    System.out.println("Hello bug 2");
                     goods.put(productID, amount);
                 }
             }
 
-            ArrayList<String> bills = new ArrayList<>();
+            ArrayList<String> solds = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("ID: ")) {
-                    String billID = line.substring(4);
-                    bills.add(billID);
+                    String soldID = line.substring(4);
+                    solds.add(soldID);
                 }
             }
             shop.setGoods(goods);
-            shop.setBills(bills);
+            shop.setSolds(solds);
         } catch(IOException e){
             System.out.println("An error occurred while reading the file!");
             e.printStackTrace();
@@ -401,19 +403,19 @@ public class Utils {
             System.out.println("An error occurred while reading the file.");
             e.printStackTrace();
         } catch (NumberFormatException e){
-            System.out.println("Error parsing bill ID.");
+            System.out.println("Error parsing sold's ID.");
             e.printStackTrace();
         }
         return product;
     }
 
-    //================================================== Bill ========================================================================
-    public static void writeBillFile(Bill bill){
-        String name = bill.getName();
-        String ID = bill.getID();
-        String price = Double.toString(bill.getPrice());
-        String filePath = "Data/Bill/"+ID+".txt";
-        Map<String, Integer> purchasedBy = bill.getPurchasedBy();
+    //================================================== Sold ========================================================================
+    public static void writeSoldFile(Sold sold){
+        String name = sold.getName();
+        String ID = sold.getID();
+        String price = Double.toString(sold.getPrice());
+        String filePath = "Data/Sold/"+ID+".txt";
+        Map<String, Integer> purchasedBy = sold.getPurchasedBy();
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
             writer.write(ID);
             writer.newLine();
@@ -436,10 +438,10 @@ public class Utils {
     }
 
 
-    public static Bill readBillFile(String ID){
-        String filePath = "Data/Bill/"+ID+".txt";
+    public static Sold readSoldFile(String ID){
+        String filePath = "Data/Sold/"+ID+".txt";
 
-        Bill bill = new Bill(" ", " ",0);
+        Sold sold = new Sold(" ", " ",0);
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String id = reader.readLine();
             String name = reader.readLine();
@@ -456,17 +458,17 @@ public class Utils {
                     purchasedBy.put(customerID, amount);
                 }
             }
-            bill.setName(name);
-            bill.setID(ID);
-            bill.setPrice(price);
-            bill.setPurchasedBy(purchasedBy);
+            sold.setName(name);
+            sold.setID(ID);
+            sold.setPrice(price);
+            sold.setPurchasedBy(purchasedBy);
         } catch(IOException e){
             System.out.println("An error occurred while reading the file.");
             e.printStackTrace();
         } catch (NumberFormatException e){
-            System.out.println("Error parsing bill ID.");
+            System.out.println("Error parsing sold ID.");
             e.printStackTrace();
         }
-        return bill;
+        return sold;
     }
 }

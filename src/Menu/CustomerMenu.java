@@ -5,7 +5,7 @@ import User.Customer;
 import User.Seller;
 import Transaction.Shop;
 import Transaction.Product;
-import Transaction.Bill;
+import Transaction.Sold;
 
 
 import java.util.*;
@@ -217,7 +217,7 @@ public class CustomerMenu {
                     System.out.println("(" + index + ") " + product + " - Available: " + amount);
                     index++;
                 }
-                System.out.println("0. Exit");
+                System.out.println("(0) Exit");
                 System.out.print("Selection: ");
                 choice = scan.next();
                 int selection = Integer.parseInt(choice);
@@ -246,8 +246,9 @@ public class CustomerMenu {
         }
         else{
             System.out.println("No product found!");
+            System.out.println("--- <Press any key to exit> ---");
+            choice = scan.next();
         }
-        choice = scan.next();
         displayCategory();
     }
 
@@ -267,11 +268,15 @@ public class CustomerMenu {
             }
             else{
                 System.out.println("---------- "+choice+" ----------");
+                // ========= Check if the shop still exists
+
+
                 for(int i = 0; i < foundProducts.size(); i++){
+                    if(!Utils.hasAccount(foundProducts.get(i).getShopID(), "Data/Shop/")) continue;
                     Shop shop = Utils.readShopFile(foundProducts.get(i).getShopID());
                     int order = i+1;
                     int amount = shop.amountProduct(foundProducts.get(i).getID());
-                    System.out.println("("+order+") "+"ID: "+foundProducts.get(i).getID() +" "+ foundProducts.get(i)+" - Available: "+amount);
+                    System.out.println("("+order+") "+ foundProducts.get(i)+" - Available: "+amount);
                 }
                 System.out.println("(0) Exit");
                 System.out.print("Selection: ");
@@ -308,20 +313,29 @@ public class CustomerMenu {
     }
 
     public void displayCartMenu(){
-        Utils.clearScreen();
         String choice;
         while(true){
+            Utils.clearScreen();
             Map<String, Integer> cart = activeCustomer.getCart();
+
             int index = 1;
             System.out.println("---------- Cart ----------");
             for(Map.Entry<String, Integer> entry: cart.entrySet()){
                 Product product = Utils.readProductFile(entry.getKey());
+                String shopID = product.getShopID();
+                //======== Check if shop still exists
+                if(!Utils.hasAccount(shopID, "Data/Shop/")){
+                    activeCustomer.getCart().remove(product.getID()); // Update the cart
+                    Utils.writeCustomerFile(activeCustomer);
+                    continue;
+                }
+
                 int quantity = entry.getValue();
                 System.out.println("("+index+") "+product+" - Amount: "+quantity);
                 index++;
             }
             System.out.println("(0) Exit");
-            System.out.println("Choose product to purchase: ");
+            System.out.println("Choose product: ");
             int selection = scan.nextInt();
             if(selection == 0){
                 break;
@@ -329,39 +343,7 @@ public class CustomerMenu {
             else if(selection>0&&selection<=cart.size()){
                 String productID = (String) cart.keySet().toArray()[selection-1];
                 Product selectedProduct = Utils.readProductFile(productID);
-                Shop shop = Utils.readShopFile(selectedProduct.getShopID());
-                int availableAmount = shop.amountProduct(productID);
-                int quantity = 0;
-                double price;
-                double totalMoney = 0;
-                while(activeCustomer.hasMoney(totalMoney)) {
-                    System.out.println("Available: " + availableAmount);
-                    System.out.println("Purchased quantity: ");
-                    quantity = scan.nextInt();
-                    price = selectedProduct.getPrice();
-                    totalMoney = quantity * price;
-
-                    // =============================== Kiểm tra số lượng
-                    if(quantity > 0 && quantity <=cart.get(productID) && quantity <=availableAmount){
-                        activeCustomer.buyPartial(productID, quantity);
-                        activeCustomer.subtractMoney(totalMoney);
-                        shop.addMoney(totalMoney);
-                        shop.sellProduct(productID, quantity);
-
-                        // Update bill
-                        shop.updateBill(productID, activeCustomer.getID(), quantity);
-                        System.out.println("--- <Purchased successfully!> ---");
-                        System.out.println("---- <Press any key to exit> ----");
-                        choice = scan.next();
-                        break;
-                    }
-                    else{
-                        System.out.println("Invalid amount.");
-                        System.out.println("--- <Press any key to exit> ---");
-                        scan.next();
-                        break;
-                    }
-                }
+                displayProductMenu(selectedProduct);
             }
             else{
                 System.out.println("Invalid choice");
@@ -372,6 +354,112 @@ public class CustomerMenu {
         displayAfterAuthMenu();
     }
 
+    public void displayProductMenu(Product product){
+        Utils.clearScreen();
+        String choice;
+        Shop shop = Utils.readShopFile(product.getShopID());
+        while(true){
+            System.out.println("---------- "+product.getName()+" ----------");
+            System.out.println("(1) Remove from cart");
+            System.out.println("(2) Purchase");
+            System.out.println("(3) Exit");
+            choice = scan.next();
+            if(choice.equalsIgnoreCase("1")){
+                displayRemoveFromCart(product);
+                return;
+            }
+            if(choice.equalsIgnoreCase("2")){
+                displayBuyProductMenu(product);
+                return;
+            }
+            if(choice.equalsIgnoreCase("3")){
+                displayCartMenu();
+                return;
+            }
+        }
+    }
+
+    public void displayRemoveFromCart(Product product){
+        Utils.clearScreen();
+        String choice;
+        Map<String, Integer> cart = activeCustomer.getCart();
+        int amount = cart.get(product.getID());
+        System.out.println("---------- "+product.getName()+" ----------");
+        System.out.println("   Amount in cart: "+amount);
+        System.out.println("   Remove:          ----");
+        System.out.println("------ <Input quantity to remove> ------");
+        choice = scan.next();
+        int quantity = Integer.parseInt(choice);
+        while(quantity<0 || quantity>amount){
+            Utils.clearScreen();
+            System.out.println("---------- "+product.getName()+" ----------");
+            System.out.println("   Amount in cart: "+amount);
+            System.out.println("   Remove:          ----");
+            System.out.println("------ <Invalid quantity> ------");
+            choice = scan.next();
+            quantity = Integer.parseInt(choice);
+        }
+
+        activeCustomer.reduceProduct(activeCustomer.getCart(), product.getID(), quantity);
+        Utils.clearScreen();
+        System.out.println("---------- "+product.getName()+" ----------");
+        System.out.println("   Amount in cart: "+amount);
+        System.out.println("   Remove:         "+quantity);
+        System.out.println("------ <Remove successfully> ------");
+        System.out.println("--- <Press any key to exit> ---");
+        choice = scan.next();
+        //displayCartMenu();
+    }
+
+    public void displayBuyProductMenu(Product product){
+        Utils.clearScreen();
+        String choice;
+        Shop shop = Utils.readShopFile(product.getShopID());
+        int availableAmount = shop.amountProduct(product.getID());
+        System.out.println("---------- "+product.getName()+" ----------");
+        System.out.println("ID:                 "+product.getID());
+        System.out.println("Price:              "+product.getPrice());
+        System.out.println("In cart:            "+activeCustomer.getCart().get(product.getID()));
+        System.out.println("Available:          " + availableAmount);
+        System.out.println("Purchased quantity: ");
+        int quantity = scan.nextInt();
+        double price = product.getPrice();
+        double totalMoney = quantity * price;
+
+        if(activeCustomer.hasMoney(totalMoney)) {
+            // =============================== Kiểm tra số lượng
+            if(quantity > 0 && quantity <= activeCustomer.getCart().get(product.getID()) && quantity <=availableAmount){
+                if(quantity == activeCustomer.getCart().get(product.getID())){
+                    activeCustomer.buyProduct(product.getID(), quantity);
+                }
+                else{
+                    activeCustomer.buyPartial(product.getID(), quantity);
+                }
+                activeCustomer.subtractMoney(totalMoney);
+                shop.addMoney(totalMoney);
+                shop.sellProduct(product.getID(), quantity);
+
+                // Update bill
+                shop.updateSold(product.getID(), activeCustomer.getID(), quantity);
+                System.out.println("Total money:        "+totalMoney);
+                System.out.println("--- <Purchased successfully> ----");
+                System.out.println("---- <Press any key to exit> ----");
+                choice = scan.next();
+            }
+            else{
+                System.out.println("Invalid amount.");
+                System.out.println("--- <Press any key to exit> ---");
+                choice = scan.next();
+            }
+        }
+        else{
+            System.out.println("------ <Not enough money> -----");
+            System.out.println("--- <Press any key to exit> ---");
+            choice = scan.next();
+        }
+        //displayCartMenu();
+    }
+
     public void displayPurchasedMenu(){
         Utils.clearScreen();
         String choice;
@@ -380,8 +468,8 @@ public class CustomerMenu {
         int index = 1;
         for (Map.Entry<String, Integer> entry: purchased.entrySet()){
             Product product = Utils.readProductFile(entry.getKey());
-            Bill bill = Utils.readBillFile(product.getID());
-            System.out.println("("+index+") "+bill.getName()+" --- "+bill.getPrice()+" --- Amount: "+bill.amountOfPurchased(activeCustomer.getID()));
+            Sold sold = Utils.readSoldFile(product.getID());
+            System.out.println("("+index+") "+sold.getName()+" --- "+sold.getPrice()+" --- Amount: "+sold.amountOfPurchased(activeCustomer.getID()));
         }
         System.out.println("(0) Exit");
         System.out.println("-------------------------------");

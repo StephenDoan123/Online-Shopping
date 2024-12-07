@@ -45,7 +45,7 @@ public class Customer extends User implements ManageProduct{
         list.put(id, list.getOrDefault(id, 0)+amount);
         Utils.writeCustomerFile(this);
     }
-    public void removeProduct(Map<String, Integer> list, String id, int amount){
+    public void removeProduct(Map<String, Integer> list, String id){
         list.remove(id);
         Utils.writeCustomerFile(this);
     }
@@ -64,7 +64,7 @@ public class Customer extends User implements ManageProduct{
     }
     public void buyProduct(String id, int amount){
         this.addProduct(Purchased, id, amount);
-        this.removeProduct(Cart, id, amount);
+        this.removeProduct(Cart, id);
     }
     public void buyPartial(String id, int amount){
         this.reduceProduct(Cart, id, amount);
