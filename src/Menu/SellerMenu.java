@@ -213,29 +213,78 @@ public class SellerMenu {
                 int amount = entry.getValue();
                 System.out.println("--- "+product+" - Amount: "+amount);
             }
-            System.out.println("(1) Buy product");
-            System.out.println("(2) Create product");
-            System.out.println("(3) Remove product");
-            System.out.println("(4) Exit");
+            System.out.println("(1) Edit product");
+            System.out.println("(2) Buy product");
+            System.out.println("(3) Create product");
+            System.out.println("(4) Remove product");
+            System.out.println("(5) Exit");
             System.out.println("------------------------------");
             choice = scan.next();
             if(choice.equalsIgnoreCase("1")){
-                buyProductMenu(shop);
+                editProductMenu(shop);
                 return;
             }
             if(choice.equalsIgnoreCase("2")){
-                createProductMenu(shop);
+                buyProductMenu(shop);
                 return;
             }
             if(choice.equalsIgnoreCase("3")){
-                removeProductMenu(shop);
+                createProductMenu(shop);
                 return;
             }
             if(choice.equalsIgnoreCase("4")){
+                removeProductMenu(shop);
+                return;
+            }
+            if(choice.equalsIgnoreCase("5")){
                 displayShopMenu(shop);
                 return;
             }
         }
+    }
+
+    public void editProductMenu(Shop shop){
+        String choice;
+        while(true){
+            Utils.clearScreen();
+            int index = 1;
+            System.out.println("---------- Products ----------");
+            for(Map.Entry<String, Integer> entry: shop.getGoods().entrySet()){
+                Product product = Utils.readProductFile(entry.getKey());
+                int quantity = entry.getValue();
+                System.out.println("("+index+") "+product+" - Amount: "+quantity);
+                index++;
+            }
+            System.out.println("(0) Exit");
+            System.out.println("Choose product: ");
+            int selection = scan.nextInt();
+            if(selection == 0){
+                break;
+            }
+            else if(selection>0&&selection<=shop.getGoods().size()){
+                String productID = (String) shop.getGoods().keySet().toArray()[selection-1];
+                Product selectedProduct = Utils.readProductFile(productID);
+                Utils.clearScreen();
+                System.out.println(selectedProduct);
+                System.out.println("New price: ");
+                choice = scan.next();
+                if(!Utils.isDouble(choice)){
+                    System.out.println("   Invalid price");
+                    System.out.println("--- <Press any key to exit> ---");
+                    choice = scan.next();
+                    break;
+                }
+                double newPrice = Double.parseDouble(choice);
+                selectedProduct.setPrice(newPrice);
+                Utils.writeProductFile(selectedProduct);
+                Utils.clearScreen();
+                System.out.println(selectedProduct);
+                System.out.println("--- <Press any key to exit> ---");
+                choice = scan.next();
+                break;
+            }
+        }
+        displayProductMenu(shop);
     }
 
     public void buyProductMenu(Shop shop){
@@ -269,12 +318,9 @@ public class SellerMenu {
             //================= Lọc shop ======================
             for(int i = 0; i<foundProducts.size(); i++){
                 Shop foundShop = Utils.readShopFile(foundProducts.get(i).getShopID());
-                System.out.println("i: "+i);
-                for(int j = 0; j<sellerShops.size(); j++){
-                    System.out.println("j: "+j);
-                    System.out.println(sellerShops);
-                    boolean isSellerShop = foundShop.getID().equals(sellerShops.get(j));
-                    if(isSellerShop){
+                for (String sellerShopID : sellerShops) {
+                    boolean isSellerShop = foundShop.getID().equals(sellerShopID);
+                    if (isSellerShop) {
                         foundProducts.remove(i);
                     }
                 }
@@ -420,7 +466,6 @@ public class SellerMenu {
                 break;
             }
             else if(selection>0 && selection <= shop.getGoods().size()){
-                System.out.println("Remove product...");
                 String productID = (String) shop.getGoods().keySet().toArray()[selection-1];
                 shop.removeProduct(shop.getGoods(), productID);
                 System.out.println("Remove product successfully!");
