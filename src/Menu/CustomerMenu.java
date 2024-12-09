@@ -436,10 +436,9 @@ public class CustomerMenu {
                     activeCustomer.buyPartial(product.getID(), quantity);
                 }
                 activeCustomer.subtractMoney(totalMoney);
-                shop.addMoney(totalMoney);
                 shop.sellProduct(product.getID(), quantity);
 
-                // Update bill
+                // Update sold product
                 shop.updateSold(product.getID(), activeCustomer.getID(), quantity);
                 System.out.println("Total money:        "+totalMoney);
                 System.out.println("--- <Purchased successfully> ----");

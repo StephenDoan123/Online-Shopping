@@ -131,7 +131,6 @@ public class SellerMenu {
     }
 
     public void displayAllShopMenu(){
-        Utils.clearScreen();
         String choice;
         ArrayList<String> shopID = activeSeller.getShops();
         ArrayList<Shop> sellerShop = new ArrayList<>();
@@ -142,6 +141,7 @@ public class SellerMenu {
         }
         Shop selectedShop = null;
         while(true){
+            Utils.clearScreen();
             System.out.println("---------- Shop ----------");
             for(int i = 0; i<sellerShop.size(); i++){
                 int order = i+1;
@@ -245,24 +245,35 @@ public class SellerMenu {
             ArrayList<String> sellerShops = activeSeller.getShops();
             String category = Utils.enumToString(shop.getCategory());
             String foundCategory = "";
-            ArrayList<Product> foundProducts = new ArrayList<>();
-            //================= Lọc category
-            while(!foundCategory.equals(category)){
-                System.out.println("---------- Search ----------");
-                System.out.println("Category: "+category);
-                System.out.println("Enter product: ");
+            System.out.println("---------- Search ----------");
+            System.out.println("Category: "+category);
+            System.out.println("Enter product: ");
+            choice = scan.next();
+            ArrayList<Product> foundProducts = Utils.findProduct(choice);
+            if(foundProducts.isEmpty()){
+                System.out.println("No "+choice+" founded!");
+                System.out.println("--- <Press any key to exit> ---");
                 choice = scan.next();
-                foundProducts = Utils.findProduct(choice);
-                Shop foundShop = Utils.readShopFile(foundProducts.getFirst().getShopID());
-                foundCategory = Utils.enumToString(foundShop.getCategory());
+                break;
             }
-
+            //================= Lọc category
+            Shop randomShop = Utils.readShopFile(foundProducts.getFirst().getShopID());
+            foundCategory = Utils.enumToString(randomShop.getCategory());
+            if(!foundCategory.equals(category)){
+                System.out.println("---- <Incorrect category> -----");
+                System.out.println("--- <Press any key to exit> ---");
+                choice = scan.next();
+                break;
+            }
 
             //================= Lọc shop ======================
             for(int i = 0; i<foundProducts.size(); i++){
                 Shop foundShop = Utils.readShopFile(foundProducts.get(i).getShopID());
+                System.out.println("i: "+i);
                 for(int j = 0; j<sellerShops.size(); j++){
-                    boolean isSellerShop = foundShop.getID().equals(sellerShops.get(i));
+                    System.out.println("j: "+j);
+                    System.out.println(sellerShops);
+                    boolean isSellerShop = foundShop.getID().equals(sellerShops.get(j));
                     if(isSellerShop){
                         foundProducts.remove(i);
                     }
@@ -271,17 +282,21 @@ public class SellerMenu {
 
             if(foundProducts.isEmpty()){
                 System.out.println("No "+choice+" founded!");
+                System.out.println("--- <Press any key to exit> ---");
+                choice = scan.next();
+                break;
             }
             else{
+                Utils.clearScreen();
                 System.out.println("---------- "+choice+" ----------");
                 for(int i = 0; i < foundProducts.size(); i++){
                     Shop foundedShop = Utils.readShopFile(foundProducts.get(i).getShopID());
                     int order = i+1;
-                    int amount = shop.amountProduct(foundProducts.get(i).getID());
+                    int amount = foundedShop.amountProduct(foundProducts.get(i).getID());
                     System.out.println("("+order+") "+"ID: "+foundProducts.get(i).getID() +" "+ foundProducts.get(i)+" - Available: "+amount);
                 }
                 System.out.println("(0) Exit");
-                System.out.print("Selection: ");
+                System.out.println("Selection: ");
                 choice = scan.next();
                 int selection = Integer.parseInt(choice);
                 if(selection == 0){
@@ -291,8 +306,8 @@ public class SellerMenu {
                     Product selectedProduct = foundProducts.get(selection-1);
                     Shop selectedShop = Utils.readShopFile(selectedProduct.getShopID());
                     int quantity = 0;
-                    double price = 0;
-                    double totalMoney = 0;
+                    double price;
+                    double totalMoney = -1;
                     while(!activeSeller.hasMoney(totalMoney)) {
                         System.out.println("Amount: ");
                         quantity = scan.nextInt();
@@ -301,13 +316,18 @@ public class SellerMenu {
                     }
 
                     if(quantity>0 && quantity <= selectedShop.amountProduct(selectedProduct.getID())){
-                        shop.addToGoods(selectedProduct.getID(), quantity);
-                        activeSeller.subtractMoney(totalMoney);
-                        shop.addMoney(totalMoney);
+                        //===== Tạo thêm file sau khi thêm product
+                        String newID = Utils.generateID();
+                        Product newProduct = new Product(selectedProduct.getName(), shop.getID(), newID, selectedProduct.getPrice());
+                        Utils.writeProductFile(newProduct);
+                        shop.addToGoods(newID, quantity);
+
+                        shop.subtractMoney(totalMoney);
                         selectedShop.sellProduct(selectedProduct.getID(), quantity);
-                        shop.updateSold(selectedProduct.getID(), activeSeller.getID(), quantity);
+                        selectedShop.updateSold(selectedProduct.getID(), shop.getID(), quantity);
 
                         System.out.println("Added "+quantity+" "+selectedProduct.getName()+" to the shop!");
+                        System.out.println("Total money: "+totalMoney);
                         System.out.println("--- <Press any key to exit> ---");
                         choice = scan.next();
                         break;
@@ -483,6 +503,7 @@ public class SellerMenu {
         }
         else{
             shop.subtractMoney(amount);
+            activeSeller.addMoney(amount);
             Utils.clearScreen();
             System.out.println("----- Withdraw from shop -----");
             System.out.println("--- Balance: "+shop.getBalance());
@@ -506,7 +527,7 @@ public class SellerMenu {
             value = scan.next();
         }
         amount = Double.parseDouble(value);
-        if(amount<0){
+        if(amount<0 || !activeSeller.hasMoney(amount)){
             Utils.clearScreen();
             System.out.println("------- Deposit to Shop ------");
             System.out.println("--- Shop balance: "+shop.getBalance());
