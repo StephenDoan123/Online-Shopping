@@ -8,7 +8,6 @@ import Transaction.Shop;
 import User.Customer;
 import User.Seller;
 import Transaction.Product;
-import com.google.gson.Gson;
 
 public class Utils {
 
