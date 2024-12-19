@@ -6,6 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="46980990-02d5-4988-8c2e-652ac4a682b3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Product/667500.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Product/980120.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Seller/175808.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Seller/375758.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Shop/268280.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Shop/520009.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Sold/667500.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Menu/CustomerMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Menu/CustomerMenu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Menu/SellerMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Menu/SellerMenu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Other/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Other/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/User/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/User/User.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,24 +44,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.main.executor": "Run",
-    "Downloaded.Files.Path.Enabled": "true",
-    "Repository.Attach.Annotations": "false",
-    "Repository.Attach.JavaDocs": "false",
-    "Repository.Attach.Sources": "false",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Os/Downloads/jackson-databind-2.18.2.jar",
-    "onboarding.tips.debug.path": "C:/Users/Os/IdeaProjects/OnlineShopping/src/Main.java",
-    "project.structure.last.edited": "Libraries",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.main.executor&quot;: &quot;Run&quot;,
+    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;true&quot;,
+    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Os/Downloads/jackson-databind-2.18.2.jar&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/Os/IdeaProjects/OnlineShopping/src/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">

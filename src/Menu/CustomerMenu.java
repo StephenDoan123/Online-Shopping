@@ -220,6 +220,18 @@ public class CustomerMenu {
                 System.out.println("(0) Exit");
                 System.out.print("Selection: ");
                 choice = scan.next();
+
+                while(true){
+                    System.out.println("Your choice: ");
+                    choice = scan.next();
+                    if(Utils.isInteger(choice)){
+                        break;
+                    }
+                    else{
+                        System.out.println("Invalid input! Please enter a number.");
+                    }
+                }
+
                 int selection = Integer.parseInt(choice);
                 if (selection == 0) {
                     break;
@@ -281,6 +293,18 @@ public class CustomerMenu {
                 System.out.println("(0) Exit");
                 System.out.print("Selection: ");
                 choice = scan.next();
+
+                while(true){
+                    System.out.println("Your choice: ");
+                    choice = scan.next();
+                    if(Utils.isInteger(choice)){
+                        break;
+                    }
+                    else{
+                        System.out.println("Invalid input! Please enter a number.");
+                    }
+                }
+
                 int selection = Integer.parseInt(choice);
                 if(selection == 0){
                     break;
@@ -336,7 +360,19 @@ public class CustomerMenu {
             }
             System.out.println("(0) Exit");
             System.out.println("Choose product: ");
-            int selection = scan.nextInt();
+            choice = scan.next();
+            while(true){
+                System.out.println("Your choice: ");
+                choice = scan.next();
+                if(Utils.isInteger(choice)){
+                    break;
+                }
+                else{
+                    System.out.println("Invalid input! Please enter a number.");
+                }
+            }
+
+            int selection = Integer.parseInt(choice);
             if(selection == 0){
                 break;
             }
@@ -470,9 +506,9 @@ public class CustomerMenu {
             Sold sold = Utils.readSoldFile(product.getID());
             System.out.println("("+index+") "+sold.getName()+" --- "+sold.getPrice()+" --- Amount: "+sold.amountOfPurchased(activeCustomer.getID()));
         }
-        System.out.println("(0) Exit");
+        System.out.println("--- <Press any key to exit> ---");
         System.out.println("-------------------------------");
-        choice = scan.next();
+        scan.next();
         displayInformationMenu();
     }
 

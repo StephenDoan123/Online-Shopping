@@ -149,7 +149,18 @@ public class SellerMenu {
             }
             System.out.println("(0) Exit");
             System.out.println("--------------------------");
-            choice = scan.next();
+
+            while(true){
+                System.out.println("Your choice: ");
+                choice = scan.next();
+                if(Utils.isInteger(choice)){
+                    break;
+                }
+                else{
+                    System.out.println("Invalid input! Please enter a number.");
+                }
+            }
+
             int selection = Integer.parseInt(choice);
             if(selection == 0){
                 break;
@@ -161,7 +172,8 @@ public class SellerMenu {
             else{
                 System.out.println("Invalid choice!");
                 System.out.println("--- <Press any key to exit> ---");
-                choice = scan.next();
+                scan.next();
+                break;
             }
         }
         displayAfterAuthMenu();
@@ -257,7 +269,19 @@ public class SellerMenu {
             }
             System.out.println("(0) Exit");
             System.out.println("Choose product: ");
-            int selection = scan.nextInt();
+
+            while(true){
+                System.out.println("Your choice: ");
+                choice = scan.next();
+                if(Utils.isInteger(choice)){
+                    break;
+                }
+                else{
+                    System.out.println("Invalid input! Please enter a number.");
+                }
+            }
+
+            int selection = Integer.parseInt(choice);
             if(selection == 0){
                 break;
             }
@@ -280,7 +304,7 @@ public class SellerMenu {
                 Utils.clearScreen();
                 System.out.println(selectedProduct);
                 System.out.println("--- <Press any key to exit> ---");
-                choice = scan.next();
+                scan.next();
                 break;
             }
         }
@@ -344,6 +368,18 @@ public class SellerMenu {
                 System.out.println("(0) Exit");
                 System.out.println("Selection: ");
                 choice = scan.next();
+
+                while(true){
+                    System.out.println("Your choice: ");
+                    choice = scan.next();
+                    if(Utils.isInteger(choice)){
+                        break;
+                    }
+                    else{
+                        System.out.println("Invalid input! Please enter a number.");
+                    }
+                }
+
                 int selection = Integer.parseInt(choice);
                 if(selection == 0){
                     break;
@@ -356,7 +392,20 @@ public class SellerMenu {
                     double totalMoney = -1;
                     while(!activeSeller.hasMoney(totalMoney)) {
                         System.out.println("Amount: ");
-                        quantity = scan.nextInt();
+                        choice = scan.next();
+
+                        while(true){
+                            System.out.println("Your choice: ");
+                            choice = scan.next();
+                            if(Utils.isInteger(choice)){
+                                break;
+                            }
+                            else{
+                                System.out.println("Invalid input! Please enter a number.");
+                            }
+                        }
+
+                        quantity = Integer.parseInt(choice);
                         price = selectedProduct.getPrice();
                         totalMoney = quantity * price;
                     }
@@ -461,7 +510,19 @@ public class SellerMenu {
             }
             System.out.println("(0) Exit");
             System.out.println("Choose product to remove: ");
-            int selection = scan.nextInt();
+            choice = scan.next();
+            while(true){
+                System.out.println("Your choice: ");
+                choice = scan.next();
+                if(Utils.isInteger(choice)){
+                    break;
+                }
+                else{
+                    System.out.println("Invalid input! Please enter a number.");
+                }
+            }
+
+            int selection = Integer.parseInt(choice);
             if (selection == 0) {
                 break;
             }
@@ -619,7 +680,6 @@ public class SellerMenu {
             System.out.println("---- <Press any key to exit> ---");
         }
         choice = scan.next();
-        //displayAllShopMenu();
     }
 
     public void displayNewShopMenu(){

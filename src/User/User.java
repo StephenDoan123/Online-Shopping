@@ -35,6 +35,8 @@ public abstract class User {
     public void setBalance(double balance){
         this.balance = balance;
     }
+
+
     public boolean hasMoney(double amount){
         if(amount<0) return false;
         return this.balance >= amount;

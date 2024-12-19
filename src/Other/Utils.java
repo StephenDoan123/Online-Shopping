@@ -112,13 +112,12 @@ public class Utils {
         ArrayList<Product> matchingProducts = new ArrayList<>();
 
         if (!folder.exists() || !folder.isDirectory()) {
-            System.out.println("Product directory not found or is invalid: " + folderPath);
+            System.out.println("Product directory not found or is invalid...");
             return matchingProducts;
         }
 
         String[] fileNames = folder.list();
         if (fileNames == null || fileNames.length == 0) {
-            System.out.println("No product files found in the directory: " + folderPath);
             return matchingProducts;
         }
 
